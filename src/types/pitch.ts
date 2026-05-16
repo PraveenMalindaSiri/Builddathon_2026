@@ -129,6 +129,7 @@ export type PitchGenerationResult = {
   sessionId?: string
   createdAt?: string
   audioUrl?: string
+  pptxUrl?: string
   audioWarning?: string
   conceptSummary: ConceptSummary
   clarifyingQuestions: ClarifyingQuestion[]

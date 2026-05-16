@@ -26,7 +26,17 @@ export type PitchJobResult = {
     seoKeywords?: string[]
   }
   audioUrl?: string | null
+  pptxUrl?: string | null
   audioWarning?: string
+}
+
+export type RefineStepResponse = {
+  questionIndex: number
+  question?: string
+  audioUrl?: string | null
+  done: boolean
+  category?: string
+  whyItMatters?: string
 }
 
 export type CampaignJobResult = {
@@ -41,11 +51,3 @@ export type CampaignJobResult = {
   videoUrl?: string | null
 }
 
-export type RefineStepResponse = {
-  questionIndex: number
-  question: string
-  audioUrl?: string
-  done: boolean
-  category?: string
-  whyItMatters?: string
-}

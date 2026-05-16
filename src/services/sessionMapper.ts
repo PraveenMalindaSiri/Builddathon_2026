@@ -50,7 +50,10 @@ function mapConceptSummary(raw: Record<string, unknown> | undefined): ConceptSum
 }
 
 function mapMarketStatus(value: unknown): MarketStatus {
-  const s = String(value ?? 'unknown')
+  const s = String(value ?? 'unknown').toLowerCase()
+  if (s === 'green') return 'underserved'
+  if (s === 'red') return 'saturated'
+  if (s === 'amber') return 'crowded_but_possible'
   if (s.includes('saturated')) return 'saturated'
   if (s.includes('underserved') || s.includes('blue')) return 'underserved'
   if (s.includes('crowded') || s.includes('possible')) return 'crowded_but_possible'
@@ -73,11 +76,14 @@ function mapMarketScan(raw: Record<string, unknown> | undefined): MarketScan {
     strength: c.strength as string | undefined,
     weakness: c.weakness as string | undefined,
   }))
+  const rating = raw.opportunityRating ?? raw.opportunity_rating
   return {
-    status: mapMarketStatus(raw.status),
+    status: mapMarketStatus(pick(raw.status, rating)),
     summary: (raw.summary as string) || '',
     competitors,
-    opportunityGaps: asArray<string>(raw.opportunityGaps ?? raw.opportunity_gaps),
+    opportunityGaps: asArray<string>(
+      raw.opportunityGaps ?? raw.opportunity_gaps ?? raw.uspGaps ?? raw.usp_gaps,
+    ),
     suggestedPositioning: pick(
       raw.suggestedPositioning as string,
       raw.suggested_positioning as string,
@@ -85,6 +91,8 @@ function mapMarketScan(raw: Record<string, unknown> | undefined): MarketScan {
     marketSizeEstimate: pick(
       raw.marketSizeEstimate as string,
       raw.market_size_estimate as string,
+      raw.marketSize as string,
+      raw.market_size as string,
     ),
   }
 }
@@ -97,11 +105,19 @@ function mapSeverity(value: unknown): RiskSeverity {
 }
 
 function mapRiskRegister(raw: unknown): RiskItem[] {
-  const items = asArray<Record<string, unknown>>(raw)
-  return items.map((r) => ({
+  let items: unknown = raw
+  const wrapped = asRecord(raw)
+  if (wrapped?.risks) {
+    items = wrapped.risks
+  }
+  return asArray<Record<string, unknown>>(items).map((r) => ({
     category: (r.category as RiskItem['category']) || 'Other',
     severity: mapSeverity(r.severity),
-    risk: (r.risk as string) || (r.title as string) || 'Risk',
+    risk:
+      (r.risk as string) ||
+      (r.description as string) ||
+      (r.title as string) ||
+      'Risk',
     explanation: (r.explanation as string) || '',
     mitigation: r.mitigation as string | undefined,
   }))
@@ -118,18 +134,33 @@ function mapViability(raw: Record<string, unknown> | undefined): ViabilityScore 
       summary: 'Viability score not available.',
     }
   }
+  const breakdown = asRecord(raw.breakdown)
   return {
     overall: clampScore(pick(raw.overall as number, raw.overall_score as number)),
     marketOpportunity: clampScore(
-      pick(raw.marketOpportunity as number, raw.market_opportunity as number),
+      pick(
+        raw.marketOpportunity as number,
+        raw.market_opportunity as number,
+        breakdown?.marketOpportunity as number,
+      ),
     ),
     competitiveRisk: clampScore(
-      pick(raw.competitiveRisk as number, raw.competitive_risk as number),
+      pick(
+        raw.competitiveRisk as number,
+        raw.competitive_risk as number,
+        breakdown?.competitiveRisk as number,
+      ),
     ),
     legalComplexity: clampScore(
-      pick(raw.legalComplexity as number, raw.legal_complexity as number),
+      pick(
+        raw.legalComplexity as number,
+        raw.legal_complexity as number,
+        breakdown?.legalComplexity as number,
+      ),
     ),
-    differentiation: clampScore(raw.differentiation as number),
+    differentiation: clampScore(
+      pick(raw.differentiation as number, breakdown?.differentiation as number),
+    ),
     founderFit: clampScore(pick(raw.founderFit as number, raw.founder_fit as number)),
     summary: (raw.summary as string) || '',
   }
@@ -254,6 +285,9 @@ export function mergePitchJobResult(
   if (jobResult.audioUrl) {
     merged.audioUrl = jobResult.audioUrl
   }
+  if (jobResult.pptxUrl) {
+    merged.pptxUrl = jobResult.pptxUrl
+  }
   merged.audioWarning = jobResult.audioWarning
 
   return merged
@@ -291,5 +325,9 @@ export function mapSessionToPitchResult(session: BackendSession): PitchGeneratio
     investorQA,
     marketingStarterPack,
     audioUrl: session.audio_url ?? session.audioUrl,
+    pptxUrl: pick(
+      pitchOut?.pptxUrl as string,
+      pitchOut?.pptx_url as string,
+    ),
   }
 }

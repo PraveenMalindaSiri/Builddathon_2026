@@ -106,7 +106,7 @@ export function PitchResultPage() {
             </Link>
           </div>
         </div>
-        <ExportActions result={result} />
+        <ExportActions result={result} sessionId={result.sessionId || sessionId || ''} />
         {result.audioUrl && <div className="mb-6"><PitchAudioCard audioUrl={result.audioUrl} /></div>}
         <PitchResultDashboard result={result} />
       </div>

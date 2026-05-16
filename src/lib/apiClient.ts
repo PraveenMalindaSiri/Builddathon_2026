@@ -91,6 +91,15 @@ export async function apiPost<TRequest, TResponse>(
   }
 }
 
+export async function apiDelete<T>(path: string): Promise<T> {
+  try {
+    const { data } = await client.delete<T>(path)
+    return data
+  } catch (error) {
+    throw new Error(parseError(error))
+  }
+}
+
 export async function downloadBlob(path: string): Promise<Blob> {
   const token = getToken()
   const res = await fetch(`${env.apiUrl}${path}`, {

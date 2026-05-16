@@ -51,7 +51,9 @@ export function RefineInterview({
         Founder interview — question {questionNum}
       </p>
       {step.category && <p className="mt-1 text-xs text-slate-500">{step.category}</p>}
-      <h3 className="mt-3 text-lg font-semibold text-slate-100">{step.question}</h3>
+      {step.question && (
+        <h3 className="mt-3 text-lg font-semibold text-slate-100">{step.question}</h3>
+      )}
       {step.whyItMatters && (
         <p className="mt-2 text-sm text-slate-400">{step.whyItMatters}</p>
       )}
