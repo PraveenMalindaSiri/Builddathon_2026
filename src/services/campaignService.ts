@@ -6,7 +6,7 @@ import { pollJob } from '@/services/jobService'
 import { mockCampaignResult } from '@/services/mockCampaignResult'
 import { delay } from '@/services/mockPitchResult'
 import type { CampaignStartResponse } from '@/types/backend'
-import type { CampaignJobResult, CampaignRecord, JobPollResponse } from '@/types/launchpad'
+import type { CampaignJobResult, CampaignRecord, JobPollResponse } from '@/types/pitchsmash'
 import type { CampaignGenerationResult } from '@/types/campaign'
 
 const MAX_REFERENCE_IMAGE_BYTES = 5 * 1024 * 1024
@@ -154,7 +154,7 @@ export async function downloadCampaignZip(campaignId: string) {
     throw new Error((body as { message?: string }).message || `Download failed (${res.status})`)
   }
   const filename =
-    res.headers.get('X-Filename') || `LaunchPad-Campaign-${campaignId}.zip`
+    res.headers.get('X-Filename') || `PitchSmash-Campaign-${campaignId}.zip`
   const blob = await res.blob()
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

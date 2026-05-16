@@ -42,7 +42,7 @@ export function MockPitchPreviewCard() {
           ))}
         </div>
         <div className="pt-4 border-t border-border/40">
-          <p className="text-xs font-mono text-ink-muted text-center">Powered by MiniMax · LaunchPad AI</p>
+          <p className="text-xs font-mono text-ink-muted text-center">Powered by MiniMax · PitchSmash</p>
         </div>
       </div>
     </div>

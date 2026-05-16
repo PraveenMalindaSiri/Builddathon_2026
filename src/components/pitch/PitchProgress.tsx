@@ -69,7 +69,7 @@ export function PitchProgress({ activeStep }: PitchProgressProps) {
           </div>
         </div>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-10 text-center font-mono text-xs text-ink-muted">
-          LaunchPad AI · BuildATHON 2026
+          PitchSmash · BuildATHON 2026
         </motion.p>
 
       </div>

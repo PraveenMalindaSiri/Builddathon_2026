@@ -1,6 +1,6 @@
 import { clampScore, coerceScore } from '@/lib/formatters'
 import type { BackendSession } from '@/types/backend'
-import type { PitchJobResult } from '@/types/launchpad'
+import type { PitchJobResult } from '@/types/pitchsmash'
 import type {
   ClarifyingQuestion,
   ConceptSummary,

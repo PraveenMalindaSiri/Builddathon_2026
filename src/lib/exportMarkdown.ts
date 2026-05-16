@@ -2,7 +2,7 @@ import type { PitchGenerationResult } from '@/types/pitch'
 
 export function pitchResultToMarkdown(result: PitchGenerationResult): string {
   const lines: string[] = [
-    '# LaunchPad AI — Pitch Package',
+    '# PitchSmash — Pitch Package',
     '',
     `Generated: ${result.createdAt ?? new Date().toISOString()}`,
     '',

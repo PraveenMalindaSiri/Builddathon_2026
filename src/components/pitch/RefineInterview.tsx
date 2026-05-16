@@ -4,7 +4,7 @@ import { Card } from '@/components/common/Card'
 import { Textarea } from '@/components/common/Textarea'
 import { VoiceInputButton } from '@/components/pitch/VoiceInputButton'
 import { submitRefineAnswer } from '@/services/pitchPipeline'
-import type { RefineStepResponse } from '@/types/launchpad'
+import type { RefineStepResponse } from '@/types/pitchsmash'
 
 type RefineInterviewProps = {
   sessionId: string

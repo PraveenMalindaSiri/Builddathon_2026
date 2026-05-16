@@ -9,7 +9,7 @@ export function Footer() {
           <span className="text-sm">Built for founders worldwide</span>
         </div>
         <p className="text-xs text-ink-muted/80">
-          LaunchPad AI · Venture intelligence from idea to investor ready
+          PitchSmash · Venture intelligence from idea to investor ready
         </p>
       </div>
     </footer>

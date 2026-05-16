@@ -44,7 +44,7 @@ export function Navbar() {
             <IconLogo size={22} />
           </span>
           <span className="font-display text-lg font-bold tracking-tight">
-            Launch<span className="gradient-text">Pad</span> AI
+            Pitch<span className="gradient-text">Smash</span>
           </span>
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">

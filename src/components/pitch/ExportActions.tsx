@@ -33,7 +33,7 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
       if (env.useMockApi) {
         downloadFile(
           JSON.stringify(result, null, 2),
-          `launchpad-pitch-${sessionId}.json`,
+          `pitchsmash-pitch-${sessionId}.json`,
           'application/json',
         )
         return
@@ -64,7 +64,7 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
         variant="outline"
         size="sm"
         onClick={() =>
-          downloadFile(fullMarkdown, 'launchpad-pitch.md', 'text/markdown')
+          downloadFile(fullMarkdown, 'pitchsmash-pitch.md', 'text/markdown')
         }
       >
         <IconDownload size={16} />

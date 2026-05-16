@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { IconCheck, IconDot } from '@/components/icons/Icons'
-import type { JobPollResponse } from '@/types/launchpad'
+import type { JobPollResponse } from '@/types/pitchsmash'
 import { cn } from '@/lib/cn'
 
 type JobStepperProps = {

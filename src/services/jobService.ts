@@ -1,7 +1,7 @@
 import { env } from '@/config/env'
 import { apiGet } from '@/lib/apiClient'
 import { delay } from '@/services/mockPitchResult'
-import type { JobPollResponse } from '@/types/launchpad'
+import type { JobPollResponse } from '@/types/pitchsmash'
 
 const POLL_INTERVAL_MS = 2500
 

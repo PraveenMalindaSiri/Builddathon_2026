@@ -11,7 +11,7 @@ import type {
   JobPollResponse,
   PitchJobResult,
   RefineStepResponse,
-} from '@/types/launchpad'
+} from '@/types/pitchsmash'
 import type { PitchGenerateRequest, PitchGenerationResult } from '@/types/pitch'
 
 export type PipelineProgressHandler = (stepIndex: number, message?: string) => void

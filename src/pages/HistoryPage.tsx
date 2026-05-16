@@ -19,7 +19,7 @@ import {
   deletePitchSession,
 } from '@/services/sessionService'
 import { getHistory } from '@/services/historyService'
-import type { CampaignListItem, SessionListItem } from '@/types/launchpad'
+import type { CampaignListItem, SessionListItem } from '@/types/pitchsmash'
 
 type Tab = 'pitches' | 'campaigns'
 

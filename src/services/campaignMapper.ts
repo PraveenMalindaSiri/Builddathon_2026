@@ -1,5 +1,5 @@
 import type { CampaignGenerationResult } from '@/types/campaign'
-import type { CampaignJobResult, CampaignRecord } from '@/types/launchpad'
+import type { CampaignJobResult, CampaignRecord } from '@/types/pitchsmash'
 
 export function mapJobResultToCampaign(result: CampaignJobResult): CampaignGenerationResult {
   const heroRaw = result.heroCopy

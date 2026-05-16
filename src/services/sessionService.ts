@@ -3,7 +3,7 @@ import { apiDelete, apiGet, downloadBlob } from '@/lib/apiClient'
 import { mapSessionToPitchResult } from '@/services/sessionMapper'
 import { mockPitchResult } from '@/services/mockPitchResult'
 import type { BackendSession, SessionListResponse } from '@/types/backend'
-import type { BulkDeleteResponse } from '@/types/launchpad'
+import type { BulkDeleteResponse } from '@/types/pitchsmash'
 
 export async function getSession(sessionId: string): Promise<BackendSession> {
   return apiGet<BackendSession>(`/api/session/${sessionId}`)
@@ -48,7 +48,7 @@ export async function downloadPitchJsonReport(sessionId: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `launchpad-pitch-${sessionId}.json`
+  a.download = `pitchsmash-pitch-${sessionId}.json`
   a.click()
   URL.revokeObjectURL(url)
 }

@@ -88,8 +88,8 @@ export function HomePage() {
               </span>
             </div>
             <h1 className="font-display text-5xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
-              <span className="block text-ink">LaunchPad</span>
-              <span className="gradient-text">AI</span>
+              <span className="block text-ink">Pitch</span>
+              <span className="gradient-text">Smash</span>
             </h1>
             <p className="mt-5 text-xl font-grotesk text-ink-soft">
               Your AI co-founder.{' '}
@@ -175,7 +175,7 @@ export function HomePage() {
             Two paths. <span className="gradient-text">One platform.</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-ink-muted">
-            Whether you are validating a new venture or scaling an existing brand, LaunchPad AI
+            Whether you are validating a new venture or scaling an existing brand, PitchSmash
             delivers production quality outputs.
           </p>
         </Reveal>

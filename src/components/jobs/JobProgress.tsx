@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import type { JobPollResponse } from '@/types/launchpad'
+import type { JobPollResponse } from '@/types/pitchsmash'
 
 type JobProgressProps = {
   job: JobPollResponse | null

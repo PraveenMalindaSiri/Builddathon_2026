@@ -17,7 +17,7 @@ import {
   runCaptureAndAnalysis,
   completePipelineAfterRefine,
 } from '@/services/pitchPipeline'
-import type { JobPollResponse, RefineStepResponse } from '@/types/launchpad'
+import type { JobPollResponse, RefineStepResponse } from '@/types/pitchsmash'
 import type { CampaignGenerationResult } from '@/types/campaign'
 import type { PitchGenerateRequest } from '@/types/pitch'
 import type { ApiStatus } from '@/types/api'

@@ -1,12 +1,12 @@
 export const STORAGE_KEYS = {
-  token: 'launchpad_token',
-  sessionId: 'launchpad_sessionId',
-  jobId: 'launchpad_jobId',
-  lastPitchInput: 'launchpad:lastPitchInput',
-  lastPitchResult: 'launchpad:lastPitchResult',
-  lastCampaignInput: 'launchpad:lastCampaignInput',
-  lastCampaignResult: 'launchpad:lastCampaignResult',
-  campaignId: 'launchpad_campaignId',
+  token: 'pitchsmash_token',
+  sessionId: 'pitchsmash_sessionId',
+  jobId: 'pitchsmash_jobId',
+  lastPitchInput: 'pitchsmash:lastPitchInput',
+  lastPitchResult: 'pitchsmash:lastPitchResult',
+  lastCampaignInput: 'pitchsmash:lastCampaignInput',
+  lastCampaignResult: 'pitchsmash:lastCampaignResult',
+  campaignId: 'pitchsmash_campaignId',
 } as const
 
 export const EXAMPLE_IDEAS = [
