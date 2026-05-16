@@ -70,11 +70,6 @@ export type CampaignJobResult = {
   referenceImageUrl?: string | null
 }
 
-export type PdfExportResponse = {
-  pdfUrl: string
-  pdfFilename: string
-}
-
 export type BulkDeleteResponse = {
   ok: boolean
   deletedCount: number

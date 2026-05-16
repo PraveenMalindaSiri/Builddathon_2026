@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import CountUp from 'react-countup'
 import { clampScore, getViabilityLabel } from '@/lib/formatters'
 import type { ViabilityScore } from '@/types/pitch'
 
@@ -56,9 +55,15 @@ export function ViabilityScoreCard({ data }: ViabilityScoreCardProps) {
           <p className="mb-2 font-mono text-xs tracking-widest text-ink-muted uppercase">
             Overall viability
           </p>
-          <p className="score-display">
-            <CountUp end={overall} duration={1.8} />
-          </p>
+          <motion.p
+            key={overall}
+            className="score-display"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {overall}
+          </motion.p>
           <p className="mt-1 font-mono text-sm text-ink-muted">/100</p>
           <p className="mt-3">
             <span className={`badge ${badgeClass}`}>{label}</span>

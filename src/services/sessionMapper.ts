@@ -1,4 +1,4 @@
-import { clampScore } from '@/lib/formatters'
+import { clampScore, coerceScore } from '@/lib/formatters'
 import type { BackendSession } from '@/types/backend'
 import type { PitchJobResult } from '@/types/launchpad'
 import type {
@@ -125,6 +125,30 @@ function mapRiskRegister(raw: unknown): RiskItem[] {
   }))
 }
 
+function pickScore(...values: unknown[]): number | undefined {
+  for (const value of values) {
+    const score = coerceScore(value)
+    if (score !== undefined) return score
+  }
+  return undefined
+}
+
+function viabilitySummaryText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value.filter((part): part is string => typeof part === 'string').join(' ')
+  }
+  const record = asRecord(value)
+  if (record) {
+    return (
+      viabilitySummaryText(record.text) ||
+      viabilitySummaryText(record.summary) ||
+      ''
+    )
+  }
+  return ''
+}
+
 function mapViability(raw: Record<string, unknown> | undefined): ViabilityScore {
   if (!raw) {
     return {
@@ -137,34 +161,44 @@ function mapViability(raw: Record<string, unknown> | undefined): ViabilityScore 
     }
   }
   const breakdown = asRecord(raw.breakdown)
+  const founderFit = pickScore(
+    raw.founderFit,
+    raw.founder_fit,
+    breakdown?.founderFit,
+    breakdown?.founder_fit,
+  )
+
   return {
-    overall: clampScore(pick(raw.overall as number, raw.overall_score as number)),
+    overall: clampScore(pickScore(raw.overall, raw.overall_score)),
     marketOpportunity: clampScore(
-      pick(
-        raw.marketOpportunity as number,
-        raw.market_opportunity as number,
-        breakdown?.marketOpportunity as number,
+      pickScore(
+        raw.marketOpportunity,
+        raw.market_opportunity,
+        breakdown?.marketOpportunity,
+        breakdown?.market_opportunity,
       ),
     ),
     competitiveRisk: clampScore(
-      pick(
-        raw.competitiveRisk as number,
-        raw.competitive_risk as number,
-        breakdown?.competitiveRisk as number,
+      pickScore(
+        raw.competitiveRisk,
+        raw.competitive_risk,
+        breakdown?.competitiveRisk,
+        breakdown?.competitive_risk,
       ),
     ),
     legalComplexity: clampScore(
-      pick(
-        raw.legalComplexity as number,
-        raw.legal_complexity as number,
-        breakdown?.legalComplexity as number,
+      pickScore(
+        raw.legalComplexity,
+        raw.legal_complexity,
+        breakdown?.legalComplexity,
+        breakdown?.legal_complexity,
       ),
     ),
     differentiation: clampScore(
-      pick(raw.differentiation as number, breakdown?.differentiation as number),
+      pickScore(raw.differentiation, breakdown?.differentiation),
     ),
-    founderFit: clampScore(pick(raw.founderFit as number, raw.founder_fit as number)),
-    summary: (raw.summary as string) || '',
+    founderFit: founderFit !== undefined ? clampScore(founderFit) : undefined,
+    summary: viabilitySummaryText(raw.summary),
   }
 }
 

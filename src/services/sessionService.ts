@@ -3,7 +3,7 @@ import { apiDelete, apiGet, downloadBlob } from '@/lib/apiClient'
 import { mapSessionToPitchResult } from '@/services/sessionMapper'
 import { mockPitchResult } from '@/services/mockPitchResult'
 import type { BackendSession, SessionListResponse } from '@/types/backend'
-import type { BulkDeleteResponse, PdfExportResponse } from '@/types/launchpad'
+import type { BulkDeleteResponse } from '@/types/launchpad'
 
 export async function getSession(sessionId: string): Promise<BackendSession> {
   return apiGet<BackendSession>(`/api/session/${sessionId}`)
@@ -41,15 +41,6 @@ export async function deleteCampaign(campaignId: string) {
 export async function deleteAllCampaigns() {
   if (env.useMockApi) return { ok: true, deletedCount: 0, deletedIds: [] }
   return apiDelete<BulkDeleteResponse>('/api/campaign')
-}
-
-export async function fetchPdfExport(
-  sessionId: string,
-  regenerate = false,
-): Promise<PdfExportResponse> {
-  if (env.useMockApi) return { pdfUrl: '', pdfFilename: '' }
-  const query = regenerate ? '?regenerate=1' : ''
-  return apiGet<PdfExportResponse>(`/api/session/${sessionId}/export/pdf${query}`)
 }
 
 export async function downloadPitchJsonReport(sessionId: string) {

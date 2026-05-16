@@ -21,6 +21,21 @@ export function getViabilityLabel(score: number): string {
   return 'Weak'
 }
 
+/** Normalize API values that may be numbers, numeric strings, or `{ score }` objects. */
+export function coerceScore(value: unknown): number | undefined {
+  if (value === undefined || value === null) return undefined
+  if (typeof value === 'number' && !Number.isNaN(value)) return value
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isNaN(parsed) ? undefined : parsed
+  }
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    return coerceScore(record.score ?? record.value ?? record.overall)
+  }
+  return undefined
+}
+
 export function clampScore(value: number | undefined): number {
   if (value === undefined || Number.isNaN(value)) return 0
   return Math.min(100, Math.max(0, Math.round(value)))
