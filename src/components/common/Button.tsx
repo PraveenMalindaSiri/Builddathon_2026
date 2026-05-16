@@ -10,10 +10,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variants: Record<Variant, string> = {
-  primary:
-    'bg-gradient-to-r from-accent-dim via-accent to-gold text-void font-semibold hover:brightness-110 shadow-[0_0_32px_-8px_rgba(0,229,192,0.5)]',
-  secondary:
-    'glass-panel text-ink hover:border-border-strong hover:shadow-[0_0_24px_-12px_rgba(0,229,192,0.25)]',
+  primary: 'btn-primary text-void shadow-lg',
+  secondary: 'btn-secondary',
   ghost: 'text-ink-soft hover:bg-surface-2 hover:text-ink',
   outline: 'border border-border text-ink-soft hover:border-accent/40 hover:text-ink hover:bg-surface-2/80',
 }

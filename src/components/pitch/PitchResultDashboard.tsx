@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { motion } from 'framer-motion'
 import { ConceptSummaryCard } from '@/components/pitch/ConceptSummaryCard'
 import { ClarifyingQuestionsCard } from '@/components/pitch/ClarifyingQuestionsCard'
 import { MarketScanCard } from '@/components/pitch/MarketScanCard'
@@ -43,19 +44,24 @@ export function PitchResultDashboard({ result }: PitchResultDashboardProps) {
       <nav className="lg:w-60 shrink-0" aria-label="Result sections">
         <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 lg:space-y-1">
           {RESULT_SECTIONS.map((s) => (
-            <li key={s.id}>
+            <li key={s.id} className="relative">
               <button
                 type="button"
                 onClick={() => setSection(s.id)}
                 className={cn(
-                  'whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 w-full text-left',
-                  section === s.id
-                    ? 'bg-accent/15 text-accent ring-1 ring-accent/35 shadow-[0_0_24px_-12px_rgba(0,229,192,0.4)]'
-                    : 'text-ink-muted hover:bg-surface-2 hover:text-ink',
+                  'relative z-10 w-full rounded-xl px-4 py-2.5 text-left text-sm font-medium whitespace-nowrap transition-colors duration-200',
+                  section === s.id ? 'text-accent' : 'text-ink-muted hover:text-ink',
                 )}
               >
                 {s.label}
               </button>
+              {section === s.id && (
+                <motion.div
+                  layoutId="active-section"
+                  className="absolute inset-0 rounded-xl border border-accent/20 bg-accent/8"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                />
+              )}
             </li>
           ))}
         </ul>
