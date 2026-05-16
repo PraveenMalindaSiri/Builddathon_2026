@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconDownload, IconLaunch } from '@/components/icons/Icons'
+import { IconLaunch } from '@/components/icons/Icons'
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/common/Button'
-import { Card } from '@/components/common/Card'
 import { ErrorState } from '@/components/common/ErrorState'
 import { Input } from '@/components/common/Input'
 import { Select } from '@/components/common/Select'
@@ -13,7 +13,6 @@ import { SectionHeader } from '@/components/common/SectionHeader'
 import { JobProgress } from '@/components/jobs/JobProgress'
 import { JobStepper } from '@/components/jobs/JobStepper'
 import { PageShell } from '@/components/layout/PageShell'
-import { env } from '@/config/env'
 import { useCampaignGeneration } from '@/hooks/useCampaignGeneration'
 import { campaignFormSchema, type CampaignFormValues } from '@/lib/validators'
 import type { CampaignRequest } from '@/services/campaignService'
@@ -21,8 +20,8 @@ import type { CampaignRequest } from '@/services/campaignService'
 const MAX_REFERENCE_MB = 5
 
 export function CampaignPage() {
-  const { generate, result, isLoading, error, job, downloadZip, campaignId } =
-    useCampaignGeneration()
+  const navigate = useNavigate()
+  const { generate, isLoading, error, job } = useCampaignGeneration()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [referenceFile, setReferenceFile] = useState<File | null>(null)
   const [referencePreview, setReferencePreview] = useState<string | null>(null)
@@ -51,7 +50,7 @@ export function CampaignPage() {
     },
   })
 
-  const onSubmit = (data: CampaignFormValues) => {
+  const onSubmit = async (data: CampaignFormValues) => {
     if (referenceFile && referenceFile.size > MAX_REFERENCE_MB * 1024 * 1024) {
       toast.error(`Reference image must be ${MAX_REFERENCE_MB} MB or smaller.`)
       return
@@ -63,7 +62,14 @@ export function CampaignPage() {
       platform: data.platform,
       referenceImage: referenceFile ?? undefined,
     }
-    void generate(request)
+    try {
+      const { result, campaignId } = await generate(request)
+      if (campaignId) {
+        navigate(`/campaign/${campaignId}`, { state: { result } })
+      }
+    } catch {
+      /* error state handled in hook */
+    }
   }
 
   return (
@@ -71,7 +77,7 @@ export function CampaignPage() {
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         <SectionHeader
           title="Campaign Mode"
-          description="Generate taglines, ad copy, and social captions for your existing business."
+          description="Generate taglines, ad copy, banners, and social captions for your business."
         />
 
         {error && (
@@ -80,148 +86,65 @@ export function CampaignPage() {
           </div>
         )}
 
-        {!result ? (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Textarea
-              label="Business / product description"
-              rows={5}
-              placeholder="Describe your product, audience, and what makes it unique..."
-              error={errors.businessDescription?.message}
-              {...register('businessDescription')}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <Textarea
+            label="Business / product description"
+            rows={5}
+            placeholder="Describe your product, audience, and what makes it unique..."
+            error={errors.businessDescription?.message}
+            {...register('businessDescription')}
+          />
+          <Input
+            label="Product URL (optional)"
+            placeholder="https://yourstore.com"
+            error={errors.productUrl?.message}
+            {...register('productUrl')}
+          />
+          <div>
+            <label className="mb-2 block text-sm font-medium text-ink-soft">
+              Product / brand photo (optional, max 5 MB)
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="block w-full text-sm text-ink-muted file:mr-4 file:rounded-lg file:border-0 file:bg-surface-2 file:px-4 file:py-2 file:text-sm file:text-ink-soft"
+              onChange={(e) => setReferenceFile(e.target.files?.[0] ?? null)}
             />
-            <Input
-              label="Product URL (optional)"
-              placeholder="https://yourstore.com"
-              error={errors.productUrl?.message}
-              {...register('productUrl')}
-            />
-            <div>
-              <label className="mb-2 block text-sm font-medium text-ink-soft">
-                Product / brand photo (optional, max 5 MB)
-              </label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="block w-full text-sm text-ink-muted file:mr-4 file:rounded-lg file:border-0 file:bg-surface-2 file:px-4 file:py-2 file:text-sm file:text-ink-soft"
-                onChange={(e) => setReferenceFile(e.target.files?.[0] ?? null)}
+            {referencePreview && (
+              <img
+                src={referencePreview}
+                alt="Reference preview"
+                className="mt-3 max-h-40 rounded-xl object-cover"
               />
-              {referencePreview && (
-                <img
-                  src={referencePreview}
-                  alt="Reference preview"
-                  className="mt-3 max-h-40 rounded-xl object-cover"
-                />
-              )}
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Select label="Tone" {...register('tone')}>
-                <option value="energetic">Energetic</option>
-                <option value="professional">Professional</option>
-                <option value="emotional">Emotional</option>
-                <option value="funny">Funny</option>
-              </Select>
-              <Select label="Platform (appended to description)" {...register('platform')}>
-                <option value="Instagram">Instagram</option>
-                <option value="TikTok">TikTok</option>
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Email">Email</option>
-                <option value="All">All</option>
-              </Select>
-            </div>
-            <Button type="submit" size="lg" disabled={isLoading}>
-              <IconLaunch size={18} />
-              {isLoading ? 'Generating...' : 'Generate Campaign'}
-            </Button>
-            {isLoading && (
-              <div className="space-y-6 py-4">
-                <JobProgress job={job} />
-                <JobStepper job={job} />
-              </div>
             )}
-          </form>
-        ) : (
-          <div className="space-y-6">
-            {campaignId && !env.useMockApi && (
-              <Button variant="secondary" onClick={() => void downloadZip()}>
-                <IconDownload size={16} />
-                Download campaign ZIP
-              </Button>
-            )}
-            {result.referenceImageUrl && (
-              <Card>
-                <h3 className="font-semibold text-ink">Your reference upload</h3>
-                <img
-                  src={result.referenceImageUrl}
-                  alt="Reference upload"
-                  className="mt-3 max-h-48 rounded-xl object-cover w-full"
-                />
-              </Card>
-            )}
-            {result.bannerUrl && (
-              <Card>
-                <h3 className="font-semibold text-ink">Generated banner</h3>
-                <img
-                  src={result.bannerUrl}
-                  alt="Campaign banner"
-                  className="mt-3 rounded-xl max-h-64 object-cover w-full"
-                />
-              </Card>
-            )}
-            {result.audioUrl && (
-              <Card>
-                <h3 className="font-semibold text-ink">Campaign audio</h3>
-                <audio controls className="mt-3 w-full" src={result.audioUrl} />
-              </Card>
-            )}
-            {result.videoUrl && (
-              <Card>
-                <h3 className="font-semibold text-ink">Promo video</h3>
-                <video controls className="mt-3 w-full rounded-xl" src={result.videoUrl} />
-              </Card>
-            )}
-            <Card>
-              <h3 className="font-semibold text-ink">Taglines</h3>
-              <ul className="mt-3 space-y-2 text-sm text-ink-soft">
-                {result.taglines.map((t) => (
-                  <li key={t}>"{t}"</li>
-                ))}
-              </ul>
-            </Card>
-            <Card>
-              <h3 className="font-semibold text-ink">Hero copy</h3>
-              <p className="mt-2 text-lg font-medium text-ink">{result.heroCopy.headline}</p>
-              <p className="text-sm text-ink-muted">{result.heroCopy.subheadline}</p>
-            </Card>
-            <Card>
-              <h3 className="font-semibold text-ink">Social captions</h3>
-              <div className="mt-3 space-y-4">
-                {result.socialCaptions.map((c) => (
-                  <div key={c.platform}>
-                    <p className="text-xs font-medium uppercase text-accent">{c.platform}</p>
-                    <p className="mt-1 text-sm text-ink-soft">{c.caption}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-            <Card>
-              <h3 className="font-semibold text-ink">Email</h3>
-              <p className="mt-2 text-sm font-medium">{result.emailCopy.subject}</p>
-              <pre className="mt-2 whitespace-pre-wrap text-sm text-ink-muted">
-                {result.emailCopy.body}
-              </pre>
-            </Card>
-            <Card>
-              <h3 className="font-semibold text-ink">Ad script ({result.adScript.duration})</h3>
-              <pre className="mt-2 whitespace-pre-wrap text-sm text-ink-soft">
-                {result.adScript.script}
-              </pre>
-            </Card>
-            <Button variant="secondary" onClick={() => window.location.reload()}>
-              Generate another
-            </Button>
           </div>
-        )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Select label="Tone" {...register('tone')}>
+              <option value="energetic">Energetic</option>
+              <option value="professional">Professional</option>
+              <option value="emotional">Emotional</option>
+              <option value="funny">Funny</option>
+            </Select>
+            <Select label="Platform (appended to description)" {...register('platform')}>
+              <option value="Instagram">Instagram</option>
+              <option value="TikTok">TikTok</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Email">Email</option>
+              <option value="All">All</option>
+            </Select>
+          </div>
+          <Button type="submit" size="lg" disabled={isLoading}>
+            <IconLaunch size={18} />
+            {isLoading ? 'Generating...' : 'Generate Campaign'}
+          </Button>
+          {isLoading && (
+            <div className="space-y-6 py-4">
+              <JobProgress job={job} />
+              <JobStepper job={job} />
+            </div>
+          )}
+        </form>
       </div>
     </PageShell>
   )

@@ -76,3 +76,56 @@ export type BulkDeleteResponse = {
   deletedCount: number
   deletedIds: string[]
 }
+
+export type SessionListItem = {
+  id: string
+  title: string
+  stage?: string
+  concept_summary?: {
+    summary?: string
+    productType?: string
+    industry?: string
+    oneLineSummary?: string
+    one_line_summary?: string
+  } | null
+  viability_score?: { overall?: number }
+  created_at: string
+  updated_at: string
+}
+
+export type CampaignListItem = {
+  id: string
+  title: string
+  description: string
+  tone: 'energetic' | 'professional' | 'emotional' | 'funny' | string
+  status: 'processing' | 'done' | 'failed' | string
+  banner_url: string | null
+  audio_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type HistoryResponse = {
+  pitches: SessionListItem[]
+  campaigns: CampaignListItem[]
+}
+
+export type CampaignRecord = {
+  id: string
+  user_id?: string
+  description: string
+  tone: string
+  status: string
+  ad_script: string | null
+  taglines: string[] | null
+  captions: { instagram?: string; tiktok?: string; twitter?: string } | null
+  email_copy: string | null
+  hero_copy: string | null
+  banner_url: string | null
+  audio_url: string | null
+  video_url: string | null
+  product_url: string | null
+  reference_image_url: string | null
+  created_at: string
+  updated_at: string
+}

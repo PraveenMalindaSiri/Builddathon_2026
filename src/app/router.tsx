@@ -4,6 +4,7 @@ import { HomePage } from '@/pages/HomePage'
 import { PitchPage } from '@/pages/PitchPage'
 import { PitchResultPage } from '@/pages/PitchResultPage'
 import { CampaignPage } from '@/pages/CampaignPage'
+import { CampaignResultPage } from '@/pages/CampaignResultPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { HistoryPage } from '@/pages/HistoryPage'
@@ -42,6 +43,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CampaignPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/campaign/:campaignId',
+    element: (
+      <ProtectedRoute>
+        <CampaignResultPage />
       </ProtectedRoute>
     ),
   },

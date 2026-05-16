@@ -1,11 +1,12 @@
 import { STORAGE_KEYS } from '@/config/constants'
 import { env } from '@/config/env'
-import { apiPost, downloadBlob, getToken } from '@/lib/apiClient'
+import { apiGet, apiPost, getToken } from '@/lib/apiClient'
+import { mapCampaignRecord, mapJobResultToCampaign } from '@/services/campaignMapper'
 import { pollJob } from '@/services/jobService'
 import { mockCampaignResult } from '@/services/mockCampaignResult'
 import { delay } from '@/services/mockPitchResult'
 import type { CampaignStartResponse } from '@/types/backend'
-import type { CampaignJobResult, JobPollResponse } from '@/types/launchpad'
+import type { CampaignJobResult, CampaignRecord, JobPollResponse } from '@/types/launchpad'
 import type { CampaignGenerationResult } from '@/types/campaign'
 
 const MAX_REFERENCE_IMAGE_BYTES = 5 * 1024 * 1024
@@ -20,61 +21,13 @@ export type CampaignRequest = {
   referenceImageUrl?: string
 }
 
-function mapJobResultToCampaign(result: CampaignJobResult): CampaignGenerationResult {
-  const heroRaw = result.heroCopy
-  let headline = 'Campaign headline'
-  let subheadline = ''
-  if (typeof heroRaw === 'string') {
-    headline = heroRaw
-  } else if (heroRaw && typeof heroRaw === 'object') {
-    const h = heroRaw as Record<string, string>
-    headline = h.headline || headline
-    subheadline = h.subheadline || h.sub_headline || ''
-  }
-
-  const captions = result.captions ?? {}
-  const socialCaptions: CampaignGenerationResult['socialCaptions'] = []
-  if (captions.instagram) socialCaptions.push({ platform: 'Instagram', caption: captions.instagram })
-  if (captions.tiktok) socialCaptions.push({ platform: 'TikTok', caption: captions.tiktok })
-  if (captions.twitter) socialCaptions.push({ platform: 'X', caption: captions.twitter })
-
-  const emailRaw = result.emailCopy
-  let emailCopy: CampaignGenerationResult['emailCopy'] = { subject: '', body: '' }
-  if (typeof emailRaw === 'string') {
-    emailCopy = { subject: 'Campaign update', body: emailRaw }
-  } else if (emailRaw && typeof emailRaw === 'object') {
-    emailCopy = emailRaw as CampaignGenerationResult['emailCopy']
-  }
-
-  let adScript: CampaignGenerationResult['adScript'] = {
-    duration: '30 seconds',
-    script: '',
-  }
-  const adScriptRaw = result.adScript
-  if (typeof adScriptRaw === 'string') {
-    adScript = { duration: '30 seconds', script: adScriptRaw }
-  } else if (adScriptRaw && typeof adScriptRaw === 'object') {
-    adScript = adScriptRaw as CampaignGenerationResult['adScript']
-  }
-
-  return {
-    taglines: result.taglines ?? [],
-    heroCopy: { headline, subheadline },
-    socialCaptions,
-    emailCopy,
-    adScript,
-    bannerUrl: result.bannerUrl ?? undefined,
-    audioUrl: result.audioUrl ?? undefined,
-    videoUrl: result.videoUrl ?? undefined,
-    referenceImageUrl: result.referenceImageUrl ?? undefined,
-  }
-}
-
 export type CampaignGenerateOutput = {
   result: CampaignGenerationResult
   campaignId?: string
   initialJob?: JobPollResponse
 }
+
+export { mapJobResultToCampaign, mapCampaignRecord }
 
 async function startCampaignApi(
   description: string,
@@ -128,6 +81,14 @@ async function startCampaignApi(
   })
 }
 
+export async function getCampaign(campaignId: string): Promise<CampaignGenerationResult> {
+  if (env.useMockApi) {
+    return mockCampaignResult
+  }
+  const record = await apiGet<CampaignRecord>(`/api/campaign/${campaignId}`)
+  return mapCampaignRecord(record)
+}
+
 export async function generateCampaign(
   request: CampaignRequest,
   onJobUpdate?: (job: JobPollResponse) => void,
@@ -139,7 +100,7 @@ export async function generateCampaign(
 
   if (env.useMockApi) {
     await delay(2000)
-    return { result: mockCampaignResult }
+    return { result: mockCampaignResult, campaignId: `mock_campaign_${Date.now()}` }
   }
 
   const start = await startCampaignApi(
@@ -174,19 +135,31 @@ export async function generateCampaign(
     mapped.referenceImageUrl = start.referenceImageUrl
   }
 
+  const campaignId = start.campaignId ?? jobResult.campaignId
+
   return {
     result: mapped,
-    campaignId: start.campaignId ?? jobResult.campaignId,
+    campaignId,
     initialJob,
   }
 }
 
 export async function downloadCampaignZip(campaignId: string) {
-  const blob = await downloadBlob(`/api/campaign/${campaignId}/download`)
+  const token = getToken()
+  const res = await fetch(`${env.apiUrl}/api/campaign/${campaignId}/download`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error((body as { message?: string }).message || `Download failed (${res.status})`)
+  }
+  const filename =
+    res.headers.get('X-Filename') || `LaunchPad-Campaign-${campaignId}.zip`
+  const blob = await res.blob()
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `launchpad-campaign-${campaignId}.zip`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }

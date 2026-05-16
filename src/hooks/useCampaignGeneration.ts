@@ -32,7 +32,7 @@ export function useCampaignGeneration() {
       if (cid) localStorage.setItem(STORAGE_KEYS.campaignId, cid)
       localStorage.setItem(STORAGE_KEYS.lastCampaignResult, JSON.stringify(data))
       setStatus('success')
-      return data
+      return { result: data, campaignId: cid ?? undefined }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Generation failed.'
       setError(message)
