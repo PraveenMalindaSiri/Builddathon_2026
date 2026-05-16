@@ -38,7 +38,11 @@ export type PitchJobResult = {
     seoKeywords?: string[]
   }
   audioUrl?: string | null
+  pdfUrl?: string | null
+  pdfFilename?: string
+  /** @deprecated Backend V5 uses pdfUrl */
   pptxUrl?: string | null
+  /** @deprecated Backend V5 uses pdfFilename */
   pptxFilename?: string
   slideImageUrls?: Array<string | null>
   audioWarning?: string
@@ -66,9 +70,9 @@ export type CampaignJobResult = {
   referenceImageUrl?: string | null
 }
 
-export type PptxExportResponse = {
-  pptxUrl: string
-  pptxFilename: string
+export type PdfExportResponse = {
+  pdfUrl: string
+  pdfFilename: string
 }
 
 export type BulkDeleteResponse = {

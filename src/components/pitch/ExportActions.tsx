@@ -16,7 +16,7 @@ import {
 } from '@/lib/exportMarkdown'
 import {
   downloadPitchJsonReport,
-  fetchPptxExport,
+  fetchPdfExport,
 } from '@/services/sessionService'
 import type { PitchGenerationResult } from '@/types/pitch'
 
@@ -27,7 +27,7 @@ type ExportActionsProps = {
 
 export function ExportActions({ result, sessionId }: ExportActionsProps) {
   const { copy } = useClipboard()
-  const [pptxLoading, setPptxLoading] = useState(false)
+  const [pdfLoading, setPdfLoading] = useState(false)
   const [reportLoading, setReportLoading] = useState(false)
 
   const fullMarkdown = pitchResultToMarkdown(result)
@@ -36,23 +36,23 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
     .map((q) => `## ${q.question}\n\n${q.answerFramework}`)
     .join('\n\n')
 
-  const handleDownloadPptx = async () => {
-    setPptxLoading(true)
+  const handleDownloadPdf = async () => {
+    setPdfLoading(true)
     try {
-      let url = result.pptxUrl
+      let url = result.pdfUrl
       if (!url && !env.useMockApi) {
-        const exported = await fetchPptxExport(sessionId)
-        url = exported.pptxUrl
+        const exported = await fetchPdfExport(sessionId)
+        url = exported.pdfUrl
       }
       if (url) {
         window.open(url, '_blank', 'noopener,noreferrer')
       } else {
-        toast.error('PowerPoint is not ready yet. Try again after the pitch deck finishes generating.')
+        toast.error('PDF is not ready yet. Try again after the pitch deck finishes generating.')
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to download PowerPoint')
+      toast.error(err instanceof Error ? err.message : 'Failed to download PDF')
     } finally {
-      setPptxLoading(false)
+      setPdfLoading(false)
     }
   }
 
@@ -111,14 +111,14 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
       <Button
         variant="outline"
         size="sm"
-        onClick={handleDownloadPptx}
-        disabled={pptxLoading}
+        onClick={handleDownloadPdf}
+        disabled={pdfLoading}
       >
         <IconSlides size={16} />
-        {pptxLoading ? 'Preparing…' : 'Download PowerPoint'}
+        {pdfLoading ? 'Preparing…' : 'Download PDF'}
       </Button>
-      {result.pptxFilename && (
-        <p className="w-full text-xs text-ink-muted">Saved as {result.pptxFilename}</p>
+      {result.pdfFilename && (
+        <p className="w-full text-xs text-ink-muted">Saved as {result.pdfFilename}</p>
       )}
     </div>
   )

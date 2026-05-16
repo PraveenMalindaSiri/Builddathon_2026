@@ -368,12 +368,16 @@ export function mergePitchJobResult(
   if (jobResult.audioUrl) {
     merged.audioUrl = jobResult.audioUrl
   }
-  if (jobResult.pptxUrl) {
-    merged.pptxUrl = jobResult.pptxUrl
-  }
-  if (jobResult.pptxFilename) {
-    merged.pptxFilename = jobResult.pptxFilename
-  }
+  const pdfUrl = pick(
+    jobResult.pdfUrl as string | undefined,
+    jobResult.pptxUrl as string | undefined,
+  )
+  const pdfFilename = pick(
+    jobResult.pdfFilename as string | undefined,
+    jobResult.pptxFilename as string | undefined,
+  )
+  if (pdfUrl) merged.pdfUrl = pdfUrl
+  if (pdfFilename) merged.pdfFilename = pdfFilename
   if (jobResult.slideImageUrls?.length) {
     merged.slideImageUrls = jobResult.slideImageUrls
   }
@@ -415,11 +419,15 @@ export function mapSessionToPitchResult(session: BackendSession): PitchGeneratio
     investorQA,
     marketingStarterPack,
     audioUrl: session.audio_url ?? session.audioUrl,
-    pptxUrl: pick(
+    pdfUrl: pick(
+      pitchOut?.pdfUrl as string,
+      pitchOut?.pdf_url as string,
       pitchOut?.pptxUrl as string,
       pitchOut?.pptx_url as string,
     ),
-    pptxFilename: pick(
+    pdfFilename: pick(
+      pitchOut?.pdfFilename as string,
+      pitchOut?.pdf_filename as string,
       pitchOut?.pptxFilename as string,
       pitchOut?.pptx_filename as string,
     ),

@@ -3,7 +3,7 @@ import { apiDelete, apiGet, downloadBlob } from '@/lib/apiClient'
 import { mapSessionToPitchResult } from '@/services/sessionMapper'
 import { mockPitchResult } from '@/services/mockPitchResult'
 import type { BackendSession, SessionListResponse } from '@/types/backend'
-import type { BulkDeleteResponse, PptxExportResponse } from '@/types/launchpad'
+import type { BulkDeleteResponse, PdfExportResponse } from '@/types/launchpad'
 
 export async function getSession(sessionId: string): Promise<BackendSession> {
   return apiGet<BackendSession>(`/api/session/${sessionId}`)
@@ -43,23 +43,17 @@ export async function deleteAllCampaigns() {
   return apiDelete<BulkDeleteResponse>('/api/campaign')
 }
 
-export async function fetchPptxExport(
+export async function fetchPdfExport(
   sessionId: string,
   regenerate = false,
-): Promise<PptxExportResponse> {
-  if (env.useMockApi) return { pptxUrl: '', pptxFilename: '' }
+): Promise<PdfExportResponse> {
+  if (env.useMockApi) return { pdfUrl: '', pdfFilename: '' }
   const query = regenerate ? '?regenerate=1' : ''
-  return apiGet<PptxExportResponse>(`/api/session/${sessionId}/export/pptx${query}`)
-}
-
-/** @deprecated Use fetchPptxExport */
-export async function fetchPptxUrl(sessionId: string, regenerate = false): Promise<string> {
-  const data = await fetchPptxExport(sessionId, regenerate)
-  return data.pptxUrl
+  return apiGet<PdfExportResponse>(`/api/session/${sessionId}/export/pdf${query}`)
 }
 
 export async function downloadPitchJsonReport(sessionId: string) {
-  const blob = await downloadBlob(`/api/session/${sessionId}/export/pdf`)
+  const blob = await downloadBlob(`/api/session/${sessionId}/export/report`)
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url

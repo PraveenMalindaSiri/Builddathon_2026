@@ -136,8 +136,8 @@ export type PitchGenerationResult = {
   sessionId?: string
   createdAt?: string
   audioUrl?: string
-  pptxUrl?: string
-  pptxFilename?: string
+  pdfUrl?: string
+  pdfFilename?: string
   slideImageUrls?: Array<string | null>
   audioWarning?: string
   conceptSummary: ConceptSummary

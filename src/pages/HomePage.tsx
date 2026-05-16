@@ -34,7 +34,7 @@ const features = [
   {
     icon: IconPitch,
     title: 'Investor grade deck',
-    desc: 'Layout aware slides with visuals, presenter mode, and export ready PowerPoint.',
+    desc: 'Layout aware slides with visuals, presenter mode, and export ready PDF.',
     accent: '#34d399',
   },
   {
