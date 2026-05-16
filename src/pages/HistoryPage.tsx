@@ -9,12 +9,12 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { PageShell } from '@/components/layout/PageShell'
-import { deletePitchSession, listSessions } from '@/services/sessionService'
+import { deleteAllPitchSessions, deletePitchSession, listSessions } from '@/services/sessionService'
 
 type SessionRow = {
   id: string
   created_at?: string
-  concept_summary?: { oneLineSummary?: string; one_line_summary?: string }
+  concept_summary?: { oneLineSummary?: string; one_line_summary?: string; summary?: string }
   viability_score?: { overall?: number }
 }
 
@@ -23,6 +23,7 @@ export function HistoryPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [clearingAll, setClearingAll] = useState(false)
 
   useEffect(() => {
     void (async () => {
@@ -51,13 +52,44 @@ export function HistoryPage() {
     }
   }
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Delete all pitch sessions permanently? This cannot be undone.')) return
+    setClearingAll(true)
+    try {
+      const res = await deleteAllPitchSessions()
+      setSessions([])
+      toast.success(
+        res.deletedCount > 0
+          ? `Deleted ${res.deletedCount} session${res.deletedCount === 1 ? '' : 's'}`
+          : 'History is already empty',
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to clear history')
+    } finally {
+      setClearingAll(false)
+    }
+  }
+
   return (
     <PageShell>
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <SectionHeader
-          title="Your pitch history"
-          description="Past sessions saved on the server."
-        />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <SectionHeader
+            title="Your pitch history"
+            description="Past sessions saved on the server."
+          />
+          {sessions.length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={clearingAll}
+              onClick={() => void handleClearAll()}
+            >
+              {clearingAll ? 'Clearing…' : 'Clear all'}
+            </Button>
+          )}
+        </div>
         {loading && <LoadingSpinner label="Loading sessions..." />}
         {error && <ErrorState message={error} />}
         {!loading && !error && sessions.length === 0 && (
@@ -72,6 +104,7 @@ export function HistoryPage() {
             const summary =
               s.concept_summary?.oneLineSummary ||
               s.concept_summary?.one_line_summary ||
+              s.concept_summary?.summary ||
               'Pitch session'
             const score = s.viability_score?.overall
             return (

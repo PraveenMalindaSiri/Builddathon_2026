@@ -34,6 +34,7 @@ export type CampaignStartResponse = {
   campaignId: string
   status: string
   progress?: string
+  referenceImageUrl?: string | null
   stages?: Array<{ key: string; label: string }>
 }
 

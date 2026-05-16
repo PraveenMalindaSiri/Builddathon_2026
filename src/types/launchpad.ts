@@ -14,8 +14,20 @@ export type JobPollResponse = {
   error: string | null
 }
 
+export type PitchSlideLayout = 'title' | 'bullets' | 'metric' | 'chart' | 'competition'
+
+export type PitchSlide = {
+  slide: number
+  layout?: PitchSlideLayout
+  title: string
+  subtitle?: string
+  bullets?: string[]
+  content?: string
+  speakerNotes?: string
+}
+
 export type PitchJobResult = {
-  pitchDeck?: Array<{ slide: number; title: string; content: string }>
+  pitchDeck?: PitchSlide[]
   investorQA?: Array<{ question: string; framework: string }>
   marketingPack?: {
     taglines?: string[]
@@ -27,6 +39,8 @@ export type PitchJobResult = {
   }
   audioUrl?: string | null
   pptxUrl?: string | null
+  pptxFilename?: string
+  slideImageUrls?: Array<string | null>
   audioWarning?: string
 }
 
@@ -49,5 +63,16 @@ export type CampaignJobResult = {
   bannerUrl?: string | null
   audioUrl?: string | null
   videoUrl?: string | null
+  referenceImageUrl?: string | null
 }
 
+export type PptxExportResponse = {
+  pptxUrl: string
+  pptxFilename: string
+}
+
+export type BulkDeleteResponse = {
+  ok: boolean
+  deletedCount: number
+  deletedIds: string[]
+}

@@ -25,7 +25,13 @@ export function PitchResultDashboard({ result }: PitchResultDashboardProps) {
     market: <MarketScanCard data={result.marketScan} />,
     risks: <RiskRegisterCard risks={result.riskRegister} />,
     viability: <ViabilityScoreCard data={result.viabilityScore} />,
-    deck: <PitchDeckCard slides={result.pitchDeck} />,
+    deck: (
+      <PitchDeckCard
+        slides={result.pitchDeck}
+        slideImageUrls={result.slideImageUrls}
+        citations={result.marketScan.citations}
+      />
+    ),
     qa: <InvestorQACard items={result.investorQA} />,
     marketing: <MarketingPackCard data={result.marketingStarterPack} />,
   }

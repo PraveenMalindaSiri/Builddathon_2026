@@ -8,6 +8,7 @@ import type {
   MarketScan,
   MarketStatus,
   PitchDeckSlide,
+  PitchSlideLayout,
   PitchGenerationResult,
   RiskItem,
   RiskSeverity,
@@ -94,6 +95,7 @@ function mapMarketScan(raw: Record<string, unknown> | undefined): MarketScan {
       raw.marketSize as string,
       raw.market_size as string,
     ),
+    citations: asArray<string>(raw.citations),
   }
 }
 
@@ -181,18 +183,32 @@ function mapQuestions(raw: unknown): ClarifyingQuestion[] {
 function mapPitchDeck(raw: unknown): PitchDeckSlide[] {
   return asArray<Record<string, unknown>>(raw).map((s, i) => {
     const content = (s.content as string) || ''
-    const mainMessage =
-      pick(s.mainMessage as string, s.main_message as string) || content
+    const subtitle = pick(s.subtitle as string)
     const bullets = asArray<string>(s.bullets)
+    const mainMessage =
+      pick(s.mainMessage as string, s.main_message as string) || subtitle || content
     return {
       slideNumber:
         (s.slideNumber as number) ?? (s.slide as number) ?? (s.slide_number as number) ?? i + 1,
+      layout: (s.layout as PitchSlideLayout) || 'bullets',
       title: (s.title as string) || `Slide ${i + 1}`,
+      subtitle,
       mainMessage,
+      content: content || undefined,
       bullets: bullets.length > 0 ? bullets : content ? [content] : [],
-      speakerNote: pick(s.speakerNote as string, s.speaker_note as string),
+      speakerNote: pick(
+        s.speakerNotes as string,
+        s.speaker_notes as string,
+        s.speakerNote as string,
+        s.speaker_note as string,
+      ),
     }
   })
+}
+
+function mapSlideImageUrls(raw: unknown): Array<string | null> | undefined {
+  if (!Array.isArray(raw)) return undefined
+  return raw.map((u) => (typeof u === 'string' ? u : null))
 }
 
 function mapInvestorQA(raw: unknown): InvestorQA[] {
@@ -288,6 +304,12 @@ export function mergePitchJobResult(
   if (jobResult.pptxUrl) {
     merged.pptxUrl = jobResult.pptxUrl
   }
+  if (jobResult.pptxFilename) {
+    merged.pptxFilename = jobResult.pptxFilename
+  }
+  if (jobResult.slideImageUrls?.length) {
+    merged.slideImageUrls = jobResult.slideImageUrls
+  }
   merged.audioWarning = jobResult.audioWarning
 
   return merged
@@ -328,6 +350,13 @@ export function mapSessionToPitchResult(session: BackendSession): PitchGeneratio
     pptxUrl: pick(
       pitchOut?.pptxUrl as string,
       pitchOut?.pptx_url as string,
+    ),
+    pptxFilename: pick(
+      pitchOut?.pptxFilename as string,
+      pitchOut?.pptx_filename as string,
+    ),
+    slideImageUrls: mapSlideImageUrls(
+      pitchOut?.slideImageUrls ?? pitchOut?.slide_image_urls,
     ),
   }
 }

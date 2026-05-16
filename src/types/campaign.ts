@@ -26,4 +26,5 @@ export type CampaignGenerationResult = {
   bannerUrl?: string
   audioUrl?: string
   videoUrl?: string
+  referenceImageUrl?: string
 }

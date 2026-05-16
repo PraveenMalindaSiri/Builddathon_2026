@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Download, Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
@@ -16,9 +18,24 @@ import { useCampaignGeneration } from '@/hooks/useCampaignGeneration'
 import { campaignFormSchema, type CampaignFormValues } from '@/lib/validators'
 import type { CampaignRequest } from '@/services/campaignService'
 
+const MAX_REFERENCE_MB = 5
+
 export function CampaignPage() {
   const { generate, result, isLoading, error, job, downloadZip, campaignId } =
     useCampaignGeneration()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [referenceFile, setReferenceFile] = useState<File | null>(null)
+  const [referencePreview, setReferencePreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!referenceFile) {
+      setReferencePreview(null)
+      return
+    }
+    const url = URL.createObjectURL(referenceFile)
+    setReferencePreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [referenceFile])
 
   const {
     register,
@@ -35,11 +52,16 @@ export function CampaignPage() {
   })
 
   const onSubmit = (data: CampaignFormValues) => {
+    if (referenceFile && referenceFile.size > MAX_REFERENCE_MB * 1024 * 1024) {
+      toast.error(`Reference image must be ${MAX_REFERENCE_MB} MB or smaller.`)
+      return
+    }
     const request: CampaignRequest = {
       description: data.businessDescription,
       productUrl: data.productUrl || undefined,
       tone: data.tone,
       platform: data.platform,
+      referenceImage: referenceFile ?? undefined,
     }
     void generate(request)
   }
@@ -73,6 +95,25 @@ export function CampaignPage() {
               error={errors.productUrl?.message}
               {...register('productUrl')}
             />
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Product / brand photo (optional, max 5 MB)
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="block w-full text-sm text-slate-400 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-sm file:text-slate-200"
+                onChange={(e) => setReferenceFile(e.target.files?.[0] ?? null)}
+              />
+              {referencePreview && (
+                <img
+                  src={referencePreview}
+                  alt="Reference preview"
+                  className="mt-3 max-h-40 rounded-xl object-cover"
+                />
+              )}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Select label="Tone" {...register('tone')}>
                 <option value="energetic">Energetic</option>
@@ -107,9 +148,19 @@ export function CampaignPage() {
                 Download campaign ZIP
               </Button>
             )}
+            {result.referenceImageUrl && (
+              <Card>
+                <h3 className="font-semibold text-slate-100">Your reference upload</h3>
+                <img
+                  src={result.referenceImageUrl}
+                  alt="Reference upload"
+                  className="mt-3 max-h-48 rounded-xl object-cover w-full"
+                />
+              </Card>
+            )}
             {result.bannerUrl && (
               <Card>
-                <h3 className="font-semibold text-slate-100">Banner</h3>
+                <h3 className="font-semibold text-slate-100">Generated banner</h3>
                 <img
                   src={result.bannerUrl}
                   alt="Campaign banner"

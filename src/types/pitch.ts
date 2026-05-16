@@ -51,6 +51,7 @@ export type MarketScan = {
   opportunityGaps: string[]
   suggestedPositioning?: string
   marketSizeEstimate?: string
+  citations?: string[]
 }
 
 export type RiskSeverity = 'high' | 'medium' | 'low'
@@ -82,11 +83,16 @@ export type ViabilityScore = {
   summary: string
 }
 
+export type PitchSlideLayout = 'title' | 'bullets' | 'metric' | 'chart' | 'competition'
+
 export type PitchDeckSlide = {
   slideNumber: number
+  layout?: PitchSlideLayout
   title: string
+  subtitle?: string
   mainMessage: string
   bullets: string[]
+  content?: string
   speakerNote?: string
 }
 
@@ -130,6 +136,8 @@ export type PitchGenerationResult = {
   createdAt?: string
   audioUrl?: string
   pptxUrl?: string
+  pptxFilename?: string
+  slideImageUrls?: Array<string | null>
   audioWarning?: string
   conceptSummary: ConceptSummary
   clarifyingQuestions: ClarifyingQuestion[]

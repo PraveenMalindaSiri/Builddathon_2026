@@ -11,7 +11,7 @@ import {
 } from '@/lib/exportMarkdown'
 import {
   downloadPitchJsonReport,
-  fetchPptxUrl,
+  fetchPptxExport,
 } from '@/services/sessionService'
 import type { PitchGenerationResult } from '@/types/pitch'
 
@@ -36,7 +36,8 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
     try {
       let url = result.pptxUrl
       if (!url && !env.useMockApi) {
-        url = await fetchPptxUrl(sessionId)
+        const exported = await fetchPptxExport(sessionId)
+        url = exported.pptxUrl
       }
       if (url) {
         window.open(url, '_blank', 'noopener,noreferrer')
@@ -111,6 +112,9 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
         <Presentation className="h-4 w-4" />
         {pptxLoading ? 'Preparing…' : 'Download PowerPoint'}
       </Button>
+      {result.pptxFilename && (
+        <p className="w-full text-xs text-slate-500">Saved as {result.pptxFilename}</p>
+      )}
     </div>
   )
 }

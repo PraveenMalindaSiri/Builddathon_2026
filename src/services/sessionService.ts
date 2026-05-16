@@ -3,6 +3,7 @@ import { apiDelete, apiGet, downloadBlob } from '@/lib/apiClient'
 import { mapSessionToPitchResult } from '@/services/sessionMapper'
 import { mockPitchResult } from '@/services/mockPitchResult'
 import type { BackendSession, SessionListResponse } from '@/types/backend'
+import type { BulkDeleteResponse, PptxExportResponse } from '@/types/launchpad'
 
 export async function getSession(sessionId: string): Promise<BackendSession> {
   return apiGet<BackendSession>(`/api/session/${sessionId}`)
@@ -27,17 +28,33 @@ export async function deletePitchSession(sessionId: string) {
   return apiDelete<{ ok: boolean; deletedId: string }>(`/api/session/${sessionId}`)
 }
 
+export async function deleteAllPitchSessions() {
+  if (env.useMockApi) return { ok: true, deletedCount: 0, deletedIds: [] }
+  return apiDelete<BulkDeleteResponse>('/api/session')
+}
+
 export async function deleteCampaign(campaignId: string) {
   if (env.useMockApi) return { ok: true, deletedId: campaignId }
   return apiDelete<{ ok: boolean; deletedId: string }>(`/api/campaign/${campaignId}`)
 }
 
-export async function fetchPptxUrl(sessionId: string, regenerate = false): Promise<string> {
-  if (env.useMockApi) return ''
+export async function deleteAllCampaigns() {
+  if (env.useMockApi) return { ok: true, deletedCount: 0, deletedIds: [] }
+  return apiDelete<BulkDeleteResponse>('/api/campaign')
+}
+
+export async function fetchPptxExport(
+  sessionId: string,
+  regenerate = false,
+): Promise<PptxExportResponse> {
+  if (env.useMockApi) return { pptxUrl: '', pptxFilename: '' }
   const query = regenerate ? '?regenerate=1' : ''
-  const data = await apiGet<{ pptxUrl: string }>(
-    `/api/session/${sessionId}/export/pptx${query}`,
-  )
+  return apiGet<PptxExportResponse>(`/api/session/${sessionId}/export/pptx${query}`)
+}
+
+/** @deprecated Use fetchPptxExport */
+export async function fetchPptxUrl(sessionId: string, regenerate = false): Promise<string> {
+  const data = await fetchPptxExport(sessionId, regenerate)
   return data.pptxUrl
 }
 
