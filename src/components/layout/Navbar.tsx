@@ -10,6 +10,8 @@ import {
 } from '@/components/icons/Icons'
 import { env } from '@/config/env'
 import { useAuth } from '@/contexts/AuthContext'
+import { useActivePipeline } from '@/contexts/ActivePipelineContext'
+import { useHideOnScroll } from '@/hooks/useHideOnScroll'
 import { getToken } from '@/lib/apiClient'
 import { cn } from '@/lib/cn'
 
@@ -23,14 +25,15 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function Navbar() {
   const { user, signOut, isAuthenticated } = useAuth()
+  const { pitchActive, campaignActive } = useActivePipeline()
+  const hidden = useHideOnScroll()
   const showAuth = isAuthenticated || !!getToken() || env.useMockApi
-
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-      className="navbar-glass sticky top-0 z-40"
+      animate={{ y: hidden ? -72 : 0, opacity: 1 }}
+      transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+      className="navbar-glass fixed top-0 right-0 left-0 z-40"
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-2.5 text-ink">
@@ -46,11 +49,21 @@ export function Navbar() {
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2" aria-label="Main">
           <NavLink to="/pitch" className={linkClass}>
-            <IconPitch size={16} />
+            <span className="relative">
+              <IconPitch size={16} />
+              {pitchActive && (
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_var(--accent-cyan)]" />
+              )}
+            </span>
             <span className="hidden sm:inline">Pitch</span>
           </NavLink>
           <NavLink to="/campaign" className={linkClass}>
-            <IconCampaign size={16} />
+            <span className="relative">
+              <IconCampaign size={16} />
+              {campaignActive && (
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-violet shadow-[0_0_8px_#a78bfa]" />
+              )}
+            </span>
             <span className="hidden sm:inline">Campaign</span>
           </NavLink>
           {showAuth && !env.useMockApi && (

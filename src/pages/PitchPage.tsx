@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { JobProgress } from '@/components/jobs/JobProgress'
@@ -9,80 +6,18 @@ import { PageShell } from '@/components/layout/PageShell'
 import { PitchIdeaForm } from '@/components/pitch/PitchIdeaForm'
 import { PitchProgress } from '@/components/pitch/PitchProgress'
 import { RefineInterview } from '@/components/pitch/RefineInterview'
-import { STORAGE_KEYS } from '@/config/constants'
-import {
-  runCaptureAndAnalysis,
-  completePipelineAfterRefine,
-} from '@/services/pitchPipeline'
-import type { JobPollResponse } from '@/types/launchpad'
-import type { RefineStepResponse } from '@/types/launchpad'
-import type { PitchGenerateRequest } from '@/types/pitch'
-
-type Phase = 'form' | 'progress' | 'refine' | 'finishing'
+import { useActivePipeline } from '@/contexts/ActivePipelineContext'
 
 export function PitchPage() {
-  const navigate = useNavigate()
-  const [phase, setPhase] = useState<Phase>('form')
-  const [progressStep, setProgressStep] = useState(0)
-  const [error, setError] = useState<string | null>(null)
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [refineStep, setRefineStep] = useState<RefineStepResponse | null>(null)
-  const [job, setJob] = useState<JobPollResponse | null>(null)
-  const [isBusy, setIsBusy] = useState(false)
+  const {
+    pitch,
+    submitPitch,
+    completePitchRefine,
+    setPitchRefineStep,
+    clearPitchError,
+  } = useActivePipeline()
 
-  const handleSubmit = async (data: PitchGenerateRequest) => {
-    setError(null)
-    setIsBusy(true)
-    setPhase('progress')
-    setProgressStep(0)
-    try {
-      localStorage.setItem(STORAGE_KEYS.lastPitchInput, JSON.stringify(data))
-      const { sessionId: sid, refineStep: step } = await runCaptureAndAnalysis(data, (s) =>
-        setProgressStep(s),
-      )
-      setSessionId(sid)
-      setRefineStep(step)
-      setPhase('refine')
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Pipeline failed'
-      setError(msg)
-      if (msg.includes('INVALID_STATE')) {
-        setError('Complete the founder interview before generating the pitch.')
-      }
-      setPhase('form')
-    } finally {
-      setIsBusy(false)
-    }
-  }
-
-  const handleRefineComplete = async () => {
-    if (!sessionId) return
-    setError(null)
-    setIsBusy(true)
-    setPhase('finishing')
-    setProgressStep(4)
-    setJob(null)
-    try {
-      const result = await completePipelineAfterRefine(
-        sessionId,
-        (step) => setProgressStep(step),
-        setJob,
-      )
-
-      if (result.audioWarning && !result.audioUrl) {
-        toast.warning('Pitch package ready. Voice audio was unavailable.', {
-          description: result.audioWarning,
-        })
-      }
-
-      navigate(`/pitch/result/${sessionId}`, { state: { result } })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to complete pitch')
-      setPhase('refine')
-    } finally {
-      setIsBusy(false)
-    }
-  }
+  const phase = pitch.phase === 'idle' ? 'form' : pitch.phase
 
   return (
     <PageShell>
@@ -92,17 +27,19 @@ export function PitchPage() {
           description="Describe your business idea. We'll scan the market, interview you, and build your pitch package."
         />
 
-        {error && (
+        {pitch.error && (
           <div className="mb-6">
-            <ErrorState message={error} onRetry={() => setError(null)} />
+            <ErrorState message={pitch.error} onRetry={clearPitchError} />
           </div>
         )}
 
-        {phase === 'form' && <PitchIdeaForm onSubmit={handleSubmit} isLoading={isBusy} />}
+        {phase === 'form' && (
+          <PitchIdeaForm onSubmit={(data) => void submitPitch(data)} isLoading={pitch.isBusy} />
+        )}
 
         {phase === 'progress' && (
           <div className="py-8">
-            <PitchProgress activeStep={progressStep} />
+            <PitchProgress activeStep={pitch.progressStep} />
             <p className="mt-4 text-center text-sm text-ink-muted" aria-live="polite">
               Analyzing your idea…
             </p>
@@ -110,19 +47,20 @@ export function PitchPage() {
         )}
 
         {phase === 'finishing' && (
-          <div className="py-8 space-y-6">
-            <PitchProgress activeStep={progressStep} />
-            <JobProgress job={job} />
-            <JobStepper job={job} />
+          <div className="space-y-6 py-8">
+            <PitchProgress activeStep={pitch.progressStep} />
+            <JobProgress job={pitch.job} />
+            <JobStepper job={pitch.job} />
           </div>
         )}
 
-        {phase === 'refine' && sessionId && refineStep && (
+        {phase === 'refine' && pitch.sessionId && pitch.refineStep && (
           <RefineInterview
-            sessionId={sessionId}
-            initialStep={refineStep}
-            onComplete={handleRefineComplete}
-            isSubmitting={isBusy}
+            sessionId={pitch.sessionId}
+            initialStep={pitch.refineStep}
+            onComplete={() => void completePitchRefine()}
+            onStepChange={setPitchRefineStep}
+            isSubmitting={pitch.isBusy}
           />
         )}
       </div>

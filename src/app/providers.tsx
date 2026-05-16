@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ConfirmProvider } from '@/contexts/ConfirmContext'
 
 type ProvidersProps = {
   children: ReactNode
@@ -9,8 +10,10 @@ type ProvidersProps = {
 export function Providers({ children }: ProvidersProps) {
   return (
     <AuthProvider>
-      {children}
-      <Toaster position="bottom-right" theme="dark" richColors />
+      <ConfirmProvider>
+        {children}
+        <Toaster position="bottom-right" theme="dark" richColors />
+      </ConfirmProvider>
     </AuthProvider>
   )
 }

@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { IconTrash } from '@/components/icons/Icons'
 import { PageShell } from '@/components/layout/PageShell'
+import { useConfirm } from '@/contexts/ConfirmContext'
 import { cn } from '@/lib/cn'
 import {
   deleteAllCampaigns,
@@ -30,6 +31,7 @@ function statusTone(status: string): 'success' | 'warning' | 'danger' | 'default
 }
 
 export function HistoryPage() {
+  const { confirm } = useConfirm()
   const [tab, setTab] = useState<Tab>('pitches')
   const [pitches, setPitches] = useState<SessionListItem[]>([])
   const [campaigns, setCampaigns] = useState<CampaignListItem[]>([])
@@ -57,7 +59,13 @@ export function HistoryPage() {
   }, [loadHistory])
 
   const handleDeletePitch = async (sessionId: string) => {
-    if (!window.confirm('Delete this pitch session permanently?')) return
+    const ok = await confirm({
+      title: 'Delete pitch?',
+      message: 'This pitch session will be permanently removed from your history.',
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    })
+    if (!ok) return
     setDeletingId(sessionId)
     try {
       await deletePitchSession(sessionId)
@@ -71,7 +79,13 @@ export function HistoryPage() {
   }
 
   const handleDeleteCampaign = async (campaignId: string) => {
-    if (!window.confirm('Delete this campaign permanently?')) return
+    const ok = await confirm({
+      title: 'Delete campaign?',
+      message: 'This campaign will be permanently removed from your history.',
+      confirmLabel: 'Delete',
+      tone: 'danger',
+    })
+    if (!ok) return
     setDeletingId(campaignId)
     try {
       await deleteCampaign(campaignId)
@@ -86,7 +100,13 @@ export function HistoryPage() {
 
   const handleClearAll = async () => {
     const label = tab === 'pitches' ? 'pitch sessions' : 'campaigns'
-    if (!window.confirm(`Delete all ${label} permanently? This cannot be undone.`)) return
+    const ok = await confirm({
+      title: `Delete all ${label}?`,
+      message: 'This cannot be undone. Every item in this tab will be permanently removed.',
+      confirmLabel: 'Delete all',
+      tone: 'danger',
+    })
+    if (!ok) return
     setClearingAll(true)
     try {
       if (tab === 'pitches') {

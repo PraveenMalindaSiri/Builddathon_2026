@@ -1,60 +1,24 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { STORAGE_KEYS } from '@/config/constants'
-import {
-  generateCampaign,
-  downloadCampaignZip,
-  type CampaignRequest,
-} from '@/services/campaignService'
-import type { CampaignGenerationResult } from '@/types/campaign'
-import type { JobPollResponse } from '@/types/launchpad'
-import type { ApiStatus } from '@/types/api'
-
+import { useActivePipeline } from '@/contexts/ActivePipelineContext'
+import { downloadCampaignZip } from '@/services/campaignService'
 export function useCampaignGeneration() {
-  const [status, setStatus] = useState<ApiStatus>('idle')
-  const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<CampaignGenerationResult | null>(null)
-  const [job, setJob] = useState<JobPollResponse | null>(null)
-  const [campaignId, setCampaignId] = useState<string | null>(null)
-
-  const generate = useCallback(async (request: CampaignRequest) => {
-    setStatus('loading')
-    setError(null)
-    setJob(null)
-    try {
-      localStorage.setItem(STORAGE_KEYS.lastCampaignInput, JSON.stringify(request))
-      const { result: data, campaignId: cid, initialJob } = await generateCampaign(
-        request,
-        setJob,
-      )
-      setResult(data)
-      setCampaignId(cid ?? null)
-      if (initialJob) setJob(initialJob)
-      if (cid) localStorage.setItem(STORAGE_KEYS.campaignId, cid)
-      localStorage.setItem(STORAGE_KEYS.lastCampaignResult, JSON.stringify(data))
-      setStatus('success')
-      return { result: data, campaignId: cid ?? undefined }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Generation failed.'
-      setError(message)
-      setStatus('error')
-      throw err
-    }
-  }, [])
+  const { campaign, generateCampaignJob } = useActivePipeline()
 
   const downloadZip = useCallback(async () => {
-    const id = campaignId ?? localStorage.getItem(STORAGE_KEYS.campaignId)
+    const id = campaign.campaignId ?? localStorage.getItem(STORAGE_KEYS.campaignId)
     if (!id) return
     await downloadCampaignZip(id)
-  }, [campaignId])
+  }, [campaign.campaignId])
 
   return {
-    status,
-    error,
-    result,
-    job,
-    campaignId,
-    generate,
+    status: campaign.status,
+    error: campaign.error,
+    result: campaign.result,
+    job: campaign.job,
+    campaignId: campaign.campaignId,
+    generate: generateCampaignJob,
     downloadZip,
-    isLoading: status === 'loading',
+    isLoading: campaign.status === 'loading',
   }
 }

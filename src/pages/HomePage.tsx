@@ -67,11 +67,12 @@ export function HomePage() {
         />
         <div className="pointer-events-none absolute inset-0 grid-bg opacity-40" aria-hidden />
 
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-16 px-4 py-24 sm:px-6 lg:grid-cols-2 lg:py-32 lg:px-8">
+        <div className="relative z-10 mx-auto grid max-w-7xl items-start gap-12 px-4 py-24 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-x-20 lg:py-28 lg:px-8">
           <motion.div
             initial={{ opacity: 0, x: -32 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-20 min-w-0 pr-0 lg:pr-6"
           >
             <div
               className="mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2"
@@ -148,7 +149,7 @@ export function HomePage() {
             initial={{ opacity: 0, x: 48 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, delay: 0.2, type: 'spring', stiffness: 80 }}
-            className="float hidden lg:block"
+            className="relative z-10 hidden w-full max-w-md justify-self-center lg:block lg:justify-self-end lg:pt-4"
           >
             <MockPitchPreviewCard />
           </motion.div>

@@ -10,6 +10,7 @@ type RefineInterviewProps = {
   sessionId: string
   initialStep: RefineStepResponse
   onComplete: () => void
+  onStepChange?: (step: RefineStepResponse) => void
   isSubmitting?: boolean
 }
 
@@ -17,6 +18,7 @@ export function RefineInterview({
   sessionId,
   initialStep,
   onComplete,
+  onStepChange,
   isSubmitting,
 }: RefineInterviewProps) {
   const [step, setStep] = useState<RefineStepResponse>(initialStep)
@@ -37,6 +39,7 @@ export function RefineInterview({
         return
       }
       setStep(next)
+      onStepChange?.(next)
       setQuestionNum((n) => n + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit answer')
