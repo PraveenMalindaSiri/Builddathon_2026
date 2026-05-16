@@ -168,16 +168,83 @@ function mapViability(raw: Record<string, unknown> | undefined): ViabilityScore 
   }
 }
 
-function mapQuestions(raw: unknown): ClarifyingQuestion[] {
-  return asArray<Record<string, unknown>>(raw).map((q) => ({
-    category: (q.category as ClarifyingQuestion['category']) || 'Other',
-    question: (q.question as string) || '',
-    whyItMatters: pick(q.whyItMatters as string, q.why_it_matters as string),
-    suggestedAnswerDirection: pick(
-      q.suggestedAnswerDirection as string,
-      q.suggested_answer_direction as string,
-    ),
-  }))
+const REFINE_QUESTION_CATEGORIES: ClarifyingQuestion['category'][] = [
+  'Customer',
+  'Revenue',
+  'Moat',
+  'Market Entry',
+  'Founder Fit',
+]
+
+function mapRefineAnswers(raw: unknown): Array<{ question: string; answer: string }> {
+  return asArray<unknown>(raw)
+    .map((item) => {
+      if (typeof item !== 'object' || item === null) return null
+      const rec = item as Record<string, unknown>
+      const question = (rec.question as string) || ''
+      if (!question) return null
+      return { question, answer: (rec.answer as string) || '' }
+    })
+    .filter((item): item is { question: string; answer: string } => item !== null)
+}
+
+function mapQuestions(questionsRaw: unknown, answersRaw?: unknown): ClarifyingQuestion[] {
+  const answerItems = mapRefineAnswers(answersRaw)
+  const answerByQuestion = new Map(answerItems.map((a) => [a.question, a.answer]))
+  const questions = asArray<unknown>(questionsRaw)
+
+  if (questions.length === 0 && answerItems.length > 0) {
+    return answerItems.map((item, i) => ({
+      category: REFINE_QUESTION_CATEGORIES[i] ?? 'Other',
+      question: item.question,
+      founderAnswer: item.answer || undefined,
+    }))
+  }
+
+  const mapped: ClarifyingQuestion[] = []
+
+  for (let i = 0; i < questions.length; i += 1) {
+    const item = questions[i]
+
+    if (typeof item === 'string') {
+      const trimmed = item.trim()
+      if (!trimmed) continue
+      const founderAnswer =
+        answerItems[i]?.answer ?? answerByQuestion.get(trimmed) ?? undefined
+      mapped.push({
+        category: REFINE_QUESTION_CATEGORIES[i] ?? 'Other',
+        question: trimmed,
+        founderAnswer: founderAnswer || undefined,
+      })
+      continue
+    }
+
+    if (typeof item !== 'object' || item === null) continue
+    const q = item as Record<string, unknown>
+    const questionText = ((q.question as string) || '').trim()
+    if (!questionText) continue
+    const founderAnswer = pick(
+      q.answer as string,
+      answerItems[i]?.answer,
+      answerByQuestion.get(questionText),
+    )
+
+    mapped.push({
+      category:
+        (q.category as ClarifyingQuestion['category']) ||
+        REFINE_QUESTION_CATEGORIES[i] ||
+        'Other',
+      question: questionText,
+      whyItMatters: pick(q.whyItMatters as string, q.why_it_matters as string),
+      suggestedAnswerDirection: pick(
+        q.suggestedAnswerDirection as string,
+        q.suggested_answer_direction as string,
+      ),
+      founderAnswer: founderAnswer || undefined,
+    })
+  }
+
+  return mapped
 }
 
 function mapPitchDeck(raw: unknown): PitchDeckSlide[] {
@@ -339,6 +406,7 @@ export function mapSessionToPitchResult(session: BackendSession): PitchGeneratio
     conceptSummary: mapConceptSummary(conceptRaw),
     clarifyingQuestions: mapQuestions(
       session.refine_questions ?? session.refineQuestions,
+      session.refine_answers ?? session.refineAnswers,
     ),
     marketScan: mapMarketScan(scanRaw),
     riskRegister: mapRiskRegister(auditRaw),

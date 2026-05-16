@@ -28,6 +28,7 @@ export type ClarifyingQuestion = {
   question: string
   whyItMatters?: string
   suggestedAnswerDirection?: string
+  founderAnswer?: string
 }
 
 export type MarketStatus =

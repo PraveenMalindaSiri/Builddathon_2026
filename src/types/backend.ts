@@ -61,6 +61,8 @@ export type BackendSession = {
   conceptSummary?: Record<string, unknown>
   refine_questions?: unknown[]
   refineQuestions?: unknown[]
+  refine_answers?: Array<{ question?: string; answer?: string }>
+  refineAnswers?: Array<{ question?: string; answer?: string }>
   scan_result?: Record<string, unknown>
   scanResult?: Record<string, unknown>
   audit_result?: unknown

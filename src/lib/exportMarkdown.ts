@@ -25,6 +25,7 @@ export function pitchResultToMarkdown(result: PitchGenerationResult): string {
   lines.push('', '## Clarifying Questions', '')
   for (const q of result.clarifyingQuestions) {
     lines.push(`### ${q.category}`, q.question, '')
+    if (q.founderAnswer) lines.push(`*Your answer:* ${q.founderAnswer}`, '')
     if (q.whyItMatters) lines.push(`*Why it matters:* ${q.whyItMatters}`, '')
   }
 
