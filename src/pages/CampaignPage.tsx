@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Download, Sparkles } from 'lucide-react'
+import { IconDownload, IconLaunch } from '@/components/icons/Icons'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
@@ -96,14 +96,14 @@ export function CampaignPage() {
               {...register('productUrl')}
             />
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">
+              <label className="mb-2 block text-sm font-medium text-ink-soft">
                 Product / brand photo (optional, max 5 MB)
               </label>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                className="block w-full text-sm text-slate-400 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-sm file:text-slate-200"
+                className="block w-full text-sm text-ink-muted file:mr-4 file:rounded-lg file:border-0 file:bg-surface-2 file:px-4 file:py-2 file:text-sm file:text-ink-soft"
                 onChange={(e) => setReferenceFile(e.target.files?.[0] ?? null)}
               />
               {referencePreview && (
@@ -130,7 +130,7 @@ export function CampaignPage() {
               </Select>
             </div>
             <Button type="submit" size="lg" disabled={isLoading}>
-              <Sparkles className="h-4 w-4" />
+              <IconLaunch size={18} />
               {isLoading ? 'Generating...' : 'Generate Campaign'}
             </Button>
             {isLoading && (
@@ -144,13 +144,13 @@ export function CampaignPage() {
           <div className="space-y-6">
             {campaignId && !env.useMockApi && (
               <Button variant="secondary" onClick={() => void downloadZip()}>
-                <Download className="h-4 w-4" />
+                <IconDownload size={16} />
                 Download campaign ZIP
               </Button>
             )}
             {result.referenceImageUrl && (
               <Card>
-                <h3 className="font-semibold text-slate-100">Your reference upload</h3>
+                <h3 className="font-semibold text-ink">Your reference upload</h3>
                 <img
                   src={result.referenceImageUrl}
                   alt="Reference upload"
@@ -160,7 +160,7 @@ export function CampaignPage() {
             )}
             {result.bannerUrl && (
               <Card>
-                <h3 className="font-semibold text-slate-100">Generated banner</h3>
+                <h3 className="font-semibold text-ink">Generated banner</h3>
                 <img
                   src={result.bannerUrl}
                   alt="Campaign banner"
@@ -170,50 +170,50 @@ export function CampaignPage() {
             )}
             {result.audioUrl && (
               <Card>
-                <h3 className="font-semibold text-slate-100">Campaign audio</h3>
+                <h3 className="font-semibold text-ink">Campaign audio</h3>
                 <audio controls className="mt-3 w-full" src={result.audioUrl} />
               </Card>
             )}
             {result.videoUrl && (
               <Card>
-                <h3 className="font-semibold text-slate-100">Promo video</h3>
+                <h3 className="font-semibold text-ink">Promo video</h3>
                 <video controls className="mt-3 w-full rounded-xl" src={result.videoUrl} />
               </Card>
             )}
             <Card>
-              <h3 className="font-semibold text-slate-100">Taglines</h3>
-              <ul className="mt-3 space-y-2 text-sm text-slate-300">
+              <h3 className="font-semibold text-ink">Taglines</h3>
+              <ul className="mt-3 space-y-2 text-sm text-ink-soft">
                 {result.taglines.map((t) => (
                   <li key={t}>"{t}"</li>
                 ))}
               </ul>
             </Card>
             <Card>
-              <h3 className="font-semibold text-slate-100">Hero copy</h3>
-              <p className="mt-2 text-lg font-medium text-slate-100">{result.heroCopy.headline}</p>
-              <p className="text-sm text-slate-400">{result.heroCopy.subheadline}</p>
+              <h3 className="font-semibold text-ink">Hero copy</h3>
+              <p className="mt-2 text-lg font-medium text-ink">{result.heroCopy.headline}</p>
+              <p className="text-sm text-ink-muted">{result.heroCopy.subheadline}</p>
             </Card>
             <Card>
-              <h3 className="font-semibold text-slate-100">Social captions</h3>
+              <h3 className="font-semibold text-ink">Social captions</h3>
               <div className="mt-3 space-y-4">
                 {result.socialCaptions.map((c) => (
                   <div key={c.platform}>
-                    <p className="text-xs font-medium uppercase text-blue-400">{c.platform}</p>
-                    <p className="mt-1 text-sm text-slate-300">{c.caption}</p>
+                    <p className="text-xs font-medium uppercase text-accent">{c.platform}</p>
+                    <p className="mt-1 text-sm text-ink-soft">{c.caption}</p>
                   </div>
                 ))}
               </div>
             </Card>
             <Card>
-              <h3 className="font-semibold text-slate-100">Email</h3>
+              <h3 className="font-semibold text-ink">Email</h3>
               <p className="mt-2 text-sm font-medium">{result.emailCopy.subject}</p>
-              <pre className="mt-2 whitespace-pre-wrap text-sm text-slate-400">
+              <pre className="mt-2 whitespace-pre-wrap text-sm text-ink-muted">
                 {result.emailCopy.body}
               </pre>
             </Card>
             <Card>
-              <h3 className="font-semibold text-slate-100">Ad script ({result.adScript.duration})</h3>
-              <pre className="mt-2 whitespace-pre-wrap text-sm text-slate-300">
+              <h3 className="font-semibold text-ink">Ad script ({result.adScript.duration})</h3>
+              <pre className="mt-2 whitespace-pre-wrap text-sm text-ink-soft">
                 {result.adScript.script}
               </pre>
             </Card>

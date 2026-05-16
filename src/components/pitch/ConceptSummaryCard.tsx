@@ -8,8 +8,8 @@ type ConceptSummaryCardProps = {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase text-slate-500">{label}</dt>
-      <dd className="text-sm text-slate-300">{value}</dd>
+      <dt className="text-xs uppercase text-ink-muted">{label}</dt>
+      <dd className="text-sm text-ink-soft">{value}</dd>
     </div>
   )
 }
@@ -18,10 +18,10 @@ export function ConceptSummaryCard({ data }: ConceptSummaryCardProps) {
   return (
     <Card>
       {data.nameSuggestion && (
-        <p className="text-sm font-medium text-blue-400">{data.nameSuggestion}</p>
+        <p className="text-sm font-medium text-accent">{data.nameSuggestion}</p>
       )}
-      <h3 className="mt-1 text-xl font-semibold text-slate-100">{data.oneLineSummary}</h3>
-      <p className="mt-4 text-sm leading-relaxed text-slate-300">{data.summary}</p>
+      <h3 className="mt-1 text-xl font-semibold text-ink">{data.oneLineSummary}</h3>
+      <p className="mt-4 text-sm leading-relaxed text-ink-soft">{data.summary}</p>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">
         {data.targetCustomer && <Field label="Target customer" value={data.targetCustomer} />}
         {data.problem && <Field label="Problem" value={data.problem} />}

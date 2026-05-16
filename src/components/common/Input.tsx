@@ -10,9 +10,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
     return (
-      <div className="space-y-1.5">
+      <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-slate-300">
+          <label htmlFor={inputId} className="mb-2 block text-sm font-medium text-ink-soft">
             {label}
           </label>
         )}
@@ -20,13 +20,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
-            error && 'border-red-500/50',
+            'w-full rounded-xl border border-border bg-surface-2/80 px-4 py-2.5 text-ink placeholder:text-ink-muted transition focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/20',
+            error && 'border-warm/60 focus:border-warm/60 focus:ring-warm/20',
             className,
           )}
           {...props}
         />
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="mt-1.5 text-sm text-warm">{error}</p>}
       </div>
     )
   },

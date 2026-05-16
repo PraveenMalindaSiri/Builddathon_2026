@@ -1,5 +1,5 @@
-import { Mic, MicOff } from 'lucide-react'
 import { Button } from '@/components/common/Button'
+import { IconMic } from '@/components/icons/Icons'
 import { useVoiceInput } from '@/hooks/useVoiceInput'
 
 type VoiceInputButtonProps = {
@@ -11,7 +11,7 @@ export function VoiceInputButton({ onTranscript }: VoiceInputButtonProps) {
 
   if (!supported) {
     return (
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-muted">
         Voice input is not supported in this browser. You can type your idea instead.
       </p>
     )
@@ -25,18 +25,10 @@ export function VoiceInputButton({ onTranscript }: VoiceInputButtonProps) {
       onClick={toggle}
       aria-pressed={isListening}
       aria-label={isListening ? 'Stop recording' : 'Start voice input'}
+      className={isListening ? 'ring-2 ring-accent/40' : ''}
     >
-      {isListening ? (
-        <>
-          <MicOff className="h-4 w-4" />
-          Stop listening
-        </>
-      ) : (
-        <>
-          <Mic className="h-4 w-4" />
-          Speak your idea
-        </>
-      )}
+      <IconMic size={16} className={isListening ? 'text-warm' : ''} />
+      {isListening ? 'Stop listening' : 'Speak your idea'}
     </Button>
   )
 }

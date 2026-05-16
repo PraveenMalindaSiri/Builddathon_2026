@@ -6,17 +6,14 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 const variants = {
-  default: 'bg-slate-900/80 border-slate-800',
-  elevated: 'bg-slate-900 border-slate-700 shadow-xl shadow-black/20',
-  muted: 'bg-slate-950/50 border-slate-800/80',
+  default: 'glass-panel',
+  elevated: 'glass-panel glass-panel-glow',
+  muted: 'bg-surface/60 border border-border/60 backdrop-blur-sm',
 }
 
 export function Card({ className, variant = 'default', children, ...props }: CardProps) {
   return (
-    <div
-      className={cn('rounded-2xl border p-6', variants[variant], className)}
-      {...props}
-    >
+    <div className={cn('rounded-2xl p-6 transition-all duration-300', variants[variant], className)} {...props}>
       {children}
     </div>
   )

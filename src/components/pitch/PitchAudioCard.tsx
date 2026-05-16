@@ -9,7 +9,7 @@ export function PitchAudioCard({ audioUrl }: PitchAudioCardProps) {
 
   return (
     <Card>
-      <h4 className="mb-3 font-semibold text-slate-100">Pitch audio</h4>
+      <h4 className="mb-3 font-semibold text-ink">Pitch audio</h4>
       <audio controls className="w-full" src={audioUrl}>
         Your browser does not support audio playback.
       </audio>

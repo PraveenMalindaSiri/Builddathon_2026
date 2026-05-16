@@ -1,7 +1,7 @@
-import { Lightbulb } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
+import { IconIdea } from '@/components/icons/Icons'
 
 type EmptyStateProps = {
   title?: string
@@ -18,10 +18,10 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <Card className="text-center">
-      <Lightbulb className="mx-auto mb-3 h-10 w-10 text-blue-400" aria-hidden />
-      <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
-      <p className="mt-2 text-sm text-slate-400">{message}</p>
-      <Link to={actionTo} className="mt-4 inline-block">
+      <IconIdea className="mx-auto mb-4 text-accent" size={44} aria-hidden />
+      <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
+      <p className="mt-2 text-sm text-ink-muted">{message}</p>
+      <Link to={actionTo} className="mt-5 inline-block">
         <Button>{actionLabel}</Button>
       </Link>
     </Card>

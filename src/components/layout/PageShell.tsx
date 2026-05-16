@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { AmbientBackground } from '@/components/layout/AmbientBackground'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 
@@ -8,9 +9,10 @@ type PageShellProps = {
 
 export function PageShell({ children }: PageShellProps) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col">
+      <AmbientBackground />
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="relative flex-1">{children}</main>
       <Footer />
     </div>
   )

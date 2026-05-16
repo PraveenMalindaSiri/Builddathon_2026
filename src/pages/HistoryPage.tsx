@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Trash2 } from 'lucide-react'
+import { IconTrash } from '@/components/icons/Icons'
 import { toast } from 'sonner'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
@@ -109,12 +109,12 @@ export function HistoryPage() {
             const score = s.viability_score?.overall
             return (
               <li key={s.id}>
-                <Card className="flex items-center gap-3 transition hover:border-blue-500/40">
+                <Card className="flex items-center gap-3 transition hover:border-accent/40">
                   <Link to={`/pitch/result/${s.id}`} className="min-w-0 flex-1">
-                    <p className="font-medium text-slate-100">{summary}</p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="font-medium text-ink">{summary}</p>
+                    <p className="mt-1 text-xs text-ink-muted">
                       {s.created_at ? new Date(s.created_at).toLocaleString() : s.id}
-                      {score !== undefined && ` · Viability ${score}/100`}
+                      {score !== undefined && ` | Viability ${score}/100`}
                     </p>
                   </Link>
                   <Button
@@ -125,7 +125,7 @@ export function HistoryPage() {
                     disabled={deletingId === s.id}
                     onClick={() => void handleDelete(s.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <IconTrash size={16} />
                   </Button>
                 </Card>
               </li>

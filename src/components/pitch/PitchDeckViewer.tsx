@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react'
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconCollapse,
+  IconExpand,
+} from '@/components/icons/Icons'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
 import { cn } from '@/lib/cn'
@@ -104,13 +109,13 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
   }, [presenter, go])
 
   if (!total || !slide) {
-    return <Card><p className="text-sm text-slate-400">No pitch deck slides returned.</p></Card>
+    return <Card><p className="text-sm text-ink-muted">No pitch deck slides returned.</p></Card>
   }
 
   const frame = (
     <div
       className={cn(
-        'relative aspect-video overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A1A2E] to-[#16213E]',
+        'relative aspect-video overflow-hidden rounded-2xl bg-gradient-to-br from-surface-2 to-void ring-1 ring-border',
         presenter && 'rounded-none',
       )}
     >
@@ -137,9 +142,9 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
           onClick={() => go(-1)}
           aria-label="Previous slide"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <IconChevronLeft size={16} />
         </Button>
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-ink-muted">
           Slide {slide.slideNumber} of {total}
         </span>
         <Button
@@ -150,7 +155,7 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
           onClick={() => go(1)}
           aria-label="Next slide"
         >
-          <ChevronRight className="h-4 w-4" />
+          <IconChevronRight size={16} />
         </Button>
       </div>
       <Button
@@ -161,12 +166,12 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
       >
         {presenter ? (
           <>
-            <Minimize2 className="h-4 w-4" />
+            <IconCollapse size={16} />
             Exit presenter
           </>
         ) : (
           <>
-            <Maximize2 className="h-4 w-4" />
+            <IconExpand size={16} />
             Presenter mode
           </>
         )}
@@ -176,17 +181,17 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
 
   if (presenter) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-slate-950">
+      <div className="fixed inset-0 z-50 flex flex-col bg-void">
         <div className="flex flex-1 flex-col p-4 sm:p-8">
           {frame}
           {slide.speakerNote && (
-            <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/90 p-4">
-              <p className="text-xs font-medium uppercase text-blue-400">Speaker notes</p>
-              <p className="mt-2 text-sm text-slate-300">{slide.speakerNote}</p>
+            <div className="mt-4 rounded-xl border border-border bg-surface/90 p-4">
+              <p className="text-xs font-medium uppercase text-accent">Speaker notes</p>
+              <p className="mt-2 text-sm text-ink-soft">{slide.speakerNote}</p>
             </div>
           )}
         </div>
-        <div className="border-t border-slate-800 bg-slate-900 p-4">{controls}</div>
+        <div className="border-t border-border bg-surface p-4">{controls}</div>
       </div>
     )
   }
@@ -196,21 +201,21 @@ export function PitchDeckViewer({ slides, slideImageUrls, citations }: PitchDeck
       {frame}
       {controls}
       {slide.speakerNote && (
-        <p className="text-xs italic text-slate-500">
+        <p className="text-xs italic text-ink-muted">
           Speaker note: {slide.speakerNote}
         </p>
       )}
       {citations && citations.length > 0 && (
         <Card>
-          <h4 className="text-sm font-semibold text-slate-200">Sources & citations</h4>
-          <ul className="mt-2 space-y-1 text-xs text-slate-400">
+          <h4 className="text-sm font-semibold text-ink-soft">Sources & citations</h4>
+          <ul className="mt-2 space-y-1 text-xs text-ink-muted">
             {citations.map((url) => (
               <li key={url}>
                 <a
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline break-all"
+                  className="text-accent hover:underline break-all"
                 >
                   {url}
                 </a>

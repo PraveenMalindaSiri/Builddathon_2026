@@ -1,6 +1,6 @@
-import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
+import { IconShield } from '@/components/icons/Icons'
 
 type ErrorStateProps = {
   title?: string
@@ -15,11 +15,11 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <Card className="text-center">
-      <AlertCircle className="mx-auto mb-3 h-10 w-10 text-red-400" aria-hidden />
-      <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
-      <p className="mt-2 text-sm text-slate-400">{message}</p>
+      <IconShield className="mx-auto mb-3 text-warm" size={40} aria-hidden />
+      <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
+      <p className="mt-2 text-sm text-ink-muted">{message}</p>
       {onRetry && (
-        <Button className="mt-4" variant="secondary" onClick={onRetry}>
+        <Button className="mt-5" variant="secondary" onClick={onRetry}>
           Try again
         </Button>
       )}

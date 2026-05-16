@@ -22,13 +22,12 @@ export function RiskRegisterCard({ risks }: RiskRegisterCardProps) {
 
   return (
     <div>
-      <p className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-amber-200/90">
-        This scan is AI-generated and surface-level. It is not legal, financial, or professional
-        advice. Consult experts for high-risk flags.
+      <p className="mb-4 rounded-xl border border-gold/20 bg-gold/5 p-3 text-xs text-gold/90">
+        Strategic risk intelligence for planning. Pair high severity items with qualified advisors before major commitments.
       </p>
       {!sorted.length ? (
         <Card>
-          <p className="text-sm text-slate-400">No major risks found in this scan.</p>
+          <p className="text-sm text-ink-muted">No major risks found in this scan.</p>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -38,11 +37,11 @@ export function RiskRegisterCard({ risks }: RiskRegisterCardProps) {
                 <Badge tone={severityTone(r.severity)}>{formatSeverity(r.severity)}</Badge>
                 <Badge>{r.category}</Badge>
               </div>
-              <h4 className="font-medium text-slate-100">{r.risk}</h4>
-              <p className="mt-2 text-sm text-slate-400">{r.explanation}</p>
+              <h4 className="font-medium text-ink">{r.risk}</h4>
+              <p className="mt-2 text-sm text-ink-muted">{r.explanation}</p>
               {r.mitigation && (
-                <p className="mt-3 text-sm text-slate-300">
-                  <span className="font-medium text-slate-200">Mitigation: </span>
+                <p className="mt-3 text-sm text-ink-soft">
+                  <span className="font-medium text-ink-soft">Mitigation: </span>
                   {r.mitigation}
                 </p>
               )}

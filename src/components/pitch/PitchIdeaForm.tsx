@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sparkles } from 'lucide-react'
+import { IconLaunch } from '@/components/icons/Icons'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -97,7 +97,7 @@ export function PitchIdeaForm({ onSubmit, isLoading }: PitchIdeaFormProps) {
       </Select>
 
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-muted">
           Example ideas
         </p>
         <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export function PitchIdeaForm({ onSubmit, isLoading }: PitchIdeaFormProps) {
               key={example}
               type="button"
               onClick={() => setValue('idea', example, { shouldValidate: true })}
-              className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-300 transition hover:border-blue-500/50 hover:text-blue-300"
+              className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-ink-soft transition hover:border-accent/50 hover:text-accent"
             >
               {example}
             </button>
@@ -115,11 +115,11 @@ export function PitchIdeaForm({ onSubmit, isLoading }: PitchIdeaFormProps) {
       </div>
 
       <Button type="submit" size="lg" disabled={isLoading} className="w-full sm:w-auto">
-        <Sparkles className="h-4 w-4" />
-        {isLoading ? 'Generating...' : 'Generate Pitch Package'}
+        <IconLaunch size={18} />
+        {isLoading ? 'Building your package…' : 'Generate Pitch Package'}
       </Button>
-      <p className="text-xs text-slate-500">
-        Typically takes 30–60 seconds depending on backend response.
+      <p className="text-xs text-ink-muted">
+        Full pipeline typically completes in a few minutes.
       </p>
     </form>
   )

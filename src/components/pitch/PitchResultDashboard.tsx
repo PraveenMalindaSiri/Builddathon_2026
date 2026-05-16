@@ -39,19 +39,19 @@ export function PitchResultDashboard({ result }: PitchResultDashboardProps) {
   const activeLabel = RESULT_SECTIONS.find((s) => s.id === section)?.label ?? 'Overview'
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row">
-      <nav className="lg:w-56 shrink-0" aria-label="Result sections">
-        <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
+    <div className="flex flex-col gap-8 lg:flex-row">
+      <nav className="lg:w-60 shrink-0" aria-label="Result sections">
+        <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 lg:space-y-1">
           {RESULT_SECTIONS.map((s) => (
             <li key={s.id}>
               <button
                 type="button"
                 onClick={() => setSection(s.id)}
                 className={cn(
-                  'whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition w-full text-left',
+                  'whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 w-full text-left',
                   section === s.id
-                    ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200',
+                    ? 'bg-accent/15 text-accent ring-1 ring-accent/35 shadow-[0_0_24px_-12px_rgba(0,229,192,0.4)]'
+                    : 'text-ink-muted hover:bg-surface-2 hover:text-ink',
                 )}
               >
                 {s.label}
@@ -62,7 +62,7 @@ export function PitchResultDashboard({ result }: PitchResultDashboardProps) {
       </nav>
       <div className="min-w-0 flex-1">
         <SectionHeader title={activeLabel} />
-        {content[section]}
+        <div key={section}>{content[section]}</div>
       </div>
     </div>
   )

@@ -45,10 +45,10 @@ export function SignupPage() {
   return (
     <PageShell>
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-        <h1 className="text-2xl font-bold text-slate-100">Create account</h1>
-        <p className="mt-2 text-sm text-slate-400">Register to save sessions and generate pitches.</p>
+        <h1 className="text-2xl font-bold text-ink">Create account</h1>
+        <p className="mt-2 text-sm text-ink-muted">Register to save sessions and generate pitches.</p>
         {checkEmail && (
-          <p className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-200">
+          <p className="mt-4 rounded-xl border border-accent/30 bg-blue-500/10 p-3 text-sm text-accent/80">
             Check your email to confirm your account, then sign in.
           </p>
         )}
@@ -78,9 +78,9 @@ export function SignupPage() {
             {loading ? 'Creating account...' : 'Sign up'}
           </Button>
         </form>
-        <p className="mt-6 text-center text-sm text-slate-400">
+        <p className="mt-6 text-center text-sm text-ink-muted">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-400 hover:underline">
+          <Link to="/login" className="text-accent hover:underline">
             Sign in
           </Link>
         </p>

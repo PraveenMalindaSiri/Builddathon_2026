@@ -10,10 +10,10 @@ type SectionHeaderProps = {
 
 export function SectionHeader({ title, description, action, className }: SectionHeaderProps) {
   return (
-    <div className={cn('mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between', className)}>
+    <div className={cn('mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between', className)}>
       <div>
-        <h2 className="text-2xl font-semibold text-slate-100">{title}</h2>
-        {description && <p className="mt-1 text-sm text-slate-400">{description}</p>}
+        <h2 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">{title}</h2>
+        {description && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">{description}</p>}
       </div>
       {action}
     </div>

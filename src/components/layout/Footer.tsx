@@ -1,9 +1,16 @@
+import { IconGlobe } from '@/components/icons/Icons'
+
 export function Footer() {
   return (
-    <footer className="border-t border-slate-800 py-8">
-      <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
-        <p>LaunchPad AI — AI-generated starting points, not legal or investment advice.</p>
-        <p className="mt-1">Built for BuildATHON 2026 · MiniMax track</p>
+    <footer className="border-t border-border/60 bg-surface/40 py-10 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 text-center sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2 text-ink-muted">
+          <IconGlobe size={16} className="text-accent" />
+          <span className="text-sm">Built for founders worldwide</span>
+        </div>
+        <p className="text-xs text-ink-muted/80">
+          LaunchPad AI · Venture intelligence from idea to investor ready
+        </p>
       </div>
     </footer>
   )

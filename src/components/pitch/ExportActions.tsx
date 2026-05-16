@@ -1,9 +1,14 @@
 import { useState } from 'react'
-import { Copy, Download, FileJson, Presentation } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/common/Button'
 import { env } from '@/config/env'
 import { useClipboard } from '@/hooks/useClipboard'
+import {
+  IconCopy,
+  IconDownload,
+  IconReport,
+  IconSlides,
+} from '@/components/icons/Icons'
 import {
   downloadFile,
   pitchDeckToMarkdown,
@@ -71,17 +76,17 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
   }
 
   return (
-    <div className="mb-6 flex flex-wrap gap-2">
+    <div className="mb-8 flex flex-wrap gap-2 rounded-2xl glass-panel p-4">
       <Button variant="secondary" size="sm" onClick={() => copy(fullMarkdown, 'Full report copied')}>
-        <Copy className="h-4 w-4" />
+        <IconCopy size={16} />
         Copy full report
       </Button>
       <Button variant="outline" size="sm" onClick={() => copy(deckMarkdown, 'Pitch deck copied')}>
-        <Copy className="h-4 w-4" />
+        <IconCopy size={16} />
         Copy pitch deck
       </Button>
       <Button variant="outline" size="sm" onClick={() => copy(qaMarkdown, 'Investor Q&A copied')}>
-        <Copy className="h-4 w-4" />
+        <IconCopy size={16} />
         Copy investor Q&A
       </Button>
       <Button
@@ -91,7 +96,7 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
           downloadFile(fullMarkdown, 'launchpad-pitch.md', 'text/markdown')
         }
       >
-        <Download className="h-4 w-4" />
+        <IconDownload size={16} />
         Download Markdown
       </Button>
       <Button
@@ -100,7 +105,7 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
         onClick={handleDownloadReport}
         disabled={reportLoading}
       >
-        <FileJson className="h-4 w-4" />
+        <IconReport size={16} />
         {reportLoading ? 'Downloading…' : 'Download report'}
       </Button>
       <Button
@@ -109,11 +114,11 @@ export function ExportActions({ result, sessionId }: ExportActionsProps) {
         onClick={handleDownloadPptx}
         disabled={pptxLoading}
       >
-        <Presentation className="h-4 w-4" />
+        <IconSlides size={16} />
         {pptxLoading ? 'Preparing…' : 'Download PowerPoint'}
       </Button>
       {result.pptxFilename && (
-        <p className="w-full text-xs text-slate-500">Saved as {result.pptxFilename}</p>
+        <p className="w-full text-xs text-ink-muted">Saved as {result.pptxFilename}</p>
       )}
     </div>
   )

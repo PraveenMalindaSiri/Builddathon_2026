@@ -47,22 +47,22 @@ export function RefineInterview({
 
   return (
     <Card variant="elevated">
-      <p className="text-xs font-medium uppercase tracking-wide text-blue-400">
-        Founder interview — question {questionNum}
+      <p className="text-xs font-medium uppercase tracking-wide text-accent">
+        Question {questionNum} of 5
       </p>
-      {step.category && <p className="mt-1 text-xs text-slate-500">{step.category}</p>}
+      {step.category && <p className="mt-1 text-xs text-ink-muted">{step.category}</p>}
       {step.question && (
-        <h3 className="mt-3 text-lg font-semibold text-slate-100">{step.question}</h3>
+        <h3 className="mt-3 text-lg font-semibold text-ink">{step.question}</h3>
       )}
       {step.whyItMatters && (
-        <p className="mt-2 text-sm text-slate-400">{step.whyItMatters}</p>
+        <p className="mt-2 text-sm text-ink-muted">{step.whyItMatters}</p>
       )}
       {step.audioUrl && (
         <audio className="mt-3 w-full" controls src={step.audioUrl}>
           Question audio
         </audio>
       )}
-      {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-2 text-sm text-warm">{error}</p>}
       <div className="mt-4">
         <Textarea
           label="Your answer"

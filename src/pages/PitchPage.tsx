@@ -70,7 +70,7 @@ export function PitchPage() {
       )
 
       if (result.audioWarning && !result.audioUrl) {
-        toast.warning('Pitch ready — voice audio could not be generated.', {
+        toast.warning('Pitch package ready. Voice audio was unavailable.', {
           description: result.audioWarning,
         })
       }
@@ -103,7 +103,7 @@ export function PitchPage() {
         {phase === 'progress' && (
           <div className="py-8">
             <PitchProgress activeStep={progressStep} />
-            <p className="mt-4 text-center text-sm text-slate-500" aria-live="polite">
+            <p className="mt-4 text-center text-sm text-ink-muted" aria-live="polite">
               Analyzing your idea…
             </p>
           </div>
