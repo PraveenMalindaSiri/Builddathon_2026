@@ -25,13 +25,29 @@ export function clearSessionKeys() {
   localStorage.removeItem(STORAGE_KEYS.campaignId)
 }
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  SIGNIN_FAILED: 'Invalid email or password. Please try again.',
+  SIGNUP_FAILED: 'Could not create your account. Please try again.',
+  VALIDATION: 'Please check your details and try again.',
+  UNAUTHORIZED: 'You are not authorized to perform this action.',
+}
+
+function messageFromApiBody(data: ApiErrorResponse | undefined): string | undefined {
+  if (!data) return undefined
+  const msg = typeof data.message === 'string' ? data.message.trim() : ''
+  if (msg) return msg
+  const code = data.error ?? data.code
+  if (code && AUTH_ERROR_MESSAGES[code]) return AUTH_ERROR_MESSAGES[code]
+  if (code && typeof code === 'string') return code.replace(/_/g, ' ').toLowerCase()
+  return undefined
+}
+
 function parseError(error: unknown): string {
   if (error instanceof ApiAuthError) return error.message
   if (isAxiosError(error)) {
     const axiosError = error as AxiosError<ApiErrorResponse>
-    if (axiosError.response?.data?.message) {
-      return axiosError.response.data.message
-    }
+    const fromBody = messageFromApiBody(axiosError.response?.data)
+    if (fromBody) return fromBody
     if (!axiosError.response) {
       return 'Could not connect to backend. Please check the API URL and that the server is running.'
     }
@@ -57,12 +73,13 @@ client.interceptors.response.use(
       const isAuthAttempt =
         url.includes('/auth/signin') ||
         url.includes('/auth/signup')
-      if (!isAuthAttempt) {
-        setToken(null)
-        clearSessionKeys()
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
-        }
+      if (isAuthAttempt) {
+        return Promise.reject(error)
+      }
+      setToken(null)
+      clearSessionKeys()
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
       }
       return Promise.reject(new ApiAuthError('Session expired. Please sign in again.'))
     }
@@ -113,7 +130,9 @@ export async function downloadBlob(path: string): Promise<Blob> {
   }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error((body as ApiErrorResponse).message || `Download failed (${res.status})`)
+    throw new Error(
+      messageFromApiBody(body as ApiErrorResponse) || `Download failed (${res.status})`,
+    )
   }
   return res.blob()
 }
