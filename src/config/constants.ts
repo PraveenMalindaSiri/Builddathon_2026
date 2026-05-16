@@ -1,8 +1,12 @@
 export const STORAGE_KEYS = {
+  token: 'launchpad_token',
+  sessionId: 'launchpad_sessionId',
+  jobId: 'launchpad_jobId',
   lastPitchInput: 'launchpad:lastPitchInput',
   lastPitchResult: 'launchpad:lastPitchResult',
   lastCampaignInput: 'launchpad:lastCampaignInput',
   lastCampaignResult: 'launchpad:lastCampaignResult',
+  campaignId: 'launchpad_campaignId',
 } as const
 
 export const EXAMPLE_IDEAS = [
@@ -22,14 +26,15 @@ export const COUNTRIES = [
   'Other',
 ] as const
 
+/** Matches live backend pipeline steps */
 export const PITCH_PROGRESS_STEPS = [
   'Capturing idea',
-  'Creating concept summary',
-  'Preparing founder questions',
   'Scanning market',
   'Auditing risks',
-  'Calculating viability',
+  'Founder interview',
+  'Scoring viability',
   'Building pitch package',
+  'Finalizing deck',
 ] as const
 
 export const RESULT_SECTIONS = [

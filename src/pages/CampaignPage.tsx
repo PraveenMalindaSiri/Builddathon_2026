@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sparkles } from 'lucide-react'
+import { Download, Sparkles } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
@@ -10,12 +10,14 @@ import { Select } from '@/components/common/Select'
 import { Textarea } from '@/components/common/Textarea'
 import { SectionHeader } from '@/components/common/SectionHeader'
 import { PageShell } from '@/components/layout/PageShell'
+import { env } from '@/config/env'
 import { useCampaignGeneration } from '@/hooks/useCampaignGeneration'
 import { campaignFormSchema, type CampaignFormValues } from '@/lib/validators'
-import type { CampaignGenerateRequest } from '@/types/campaign'
+import type { CampaignRequest } from '@/services/campaignService'
 
 export function CampaignPage() {
-  const { generate, result, isLoading, error } = useCampaignGeneration()
+  const { generate, result, isLoading, error, progress, downloadZip, campaignId } =
+    useCampaignGeneration()
 
   const {
     register,
@@ -32,8 +34,8 @@ export function CampaignPage() {
   })
 
   const onSubmit = (data: CampaignFormValues) => {
-    const request: CampaignGenerateRequest = {
-      businessDescription: data.businessDescription,
+    const request: CampaignRequest = {
+      description: data.businessDescription,
       productUrl: data.productUrl || undefined,
       tone: data.tone,
       platform: data.platform,
@@ -77,7 +79,7 @@ export function CampaignPage() {
                 <option value="emotional">Emotional</option>
                 <option value="funny">Funny</option>
               </Select>
-              <Select label="Platform" {...register('platform')}>
+              <Select label="Platform (appended to description)" {...register('platform')}>
                 <option value="Instagram">Instagram</option>
                 <option value="TikTok">TikTok</option>
                 <option value="LinkedIn">LinkedIn</option>
@@ -89,10 +91,20 @@ export function CampaignPage() {
               <Sparkles className="h-4 w-4" />
               {isLoading ? 'Generating...' : 'Generate Campaign'}
             </Button>
-            {isLoading && <LoadingSpinner label="Creating your campaign package..." />}
+            {isLoading && (
+              <LoadingSpinner
+                label={progress || 'Creating your campaign package...'}
+              />
+            )}
           </form>
         ) : (
           <div className="space-y-6">
+            {campaignId && !env.useMockApi && (
+              <Button variant="secondary" onClick={() => void downloadZip()}>
+                <Download className="h-4 w-4" />
+                Download campaign ZIP
+              </Button>
+            )}
             <Card>
               <h3 className="font-semibold text-slate-100">Taglines</h3>
               <ul className="mt-3 space-y-2 text-sm text-slate-300">

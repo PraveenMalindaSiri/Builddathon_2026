@@ -1,22 +1,19 @@
-import { env } from '@/config/env'
-import { apiPost } from '@/lib/apiClient'
-import { delay, mockPitchResult } from '@/services/mockPitchResult'
+/**
+ * Legacy entry — prefer pitchPipeline + sessionService for live backend.
+ */
+import { getPitchResult } from '@/services/sessionService'
+import {
+  runCaptureAndAnalysis,
+  submitRefineAnswers,
+  type PipelineProgressHandler,
+} from '@/services/pitchPipeline'
 import type { PitchGenerateRequest, PitchGenerationResult } from '@/types/pitch'
 
-export async function generatePitch(
-  request: PitchGenerateRequest,
-): Promise<PitchGenerationResult> {
-  if (env.useMockApi) {
-    await delay(2500)
-    return {
-      ...mockPitchResult,
-      sessionId: `pitch_mock_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    }
-  }
+export { runCaptureAndAnalysis, submitRefineAnswers }
+export type { PipelineProgressHandler }
 
-  return apiPost<PitchGenerateRequest, PitchGenerationResult>(
-    '/api/pitch/generate',
-    request,
-  )
+export async function fetchPitchResult(sessionId: string): Promise<PitchGenerationResult> {
+  return getPitchResult(sessionId)
 }
+
+export type PitchPipelineStart = PitchGenerateRequest

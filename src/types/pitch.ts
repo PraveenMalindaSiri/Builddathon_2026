@@ -128,6 +128,7 @@ export type MarketingStarterPack = {
 export type PitchGenerationResult = {
   sessionId?: string
   createdAt?: string
+  audioUrl?: string
   conceptSummary: ConceptSummary
   clarifyingQuestions: ClarifyingQuestion[]
   marketScan: MarketScan
