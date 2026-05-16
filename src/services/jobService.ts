@@ -1,32 +1,46 @@
 import { env } from '@/config/env'
 import { apiGet } from '@/lib/apiClient'
 import { delay } from '@/services/mockPitchResult'
-import type { JobResponse } from '@/types/backend'
+import type { JobPollResponse } from '@/types/launchpad'
 
 const POLL_INTERVAL_MS = 2500
-const MAX_POLLS = 120
 
-export async function pollJob<T = Record<string, unknown>>(
+function isJobDone(status: string): boolean {
+  return status === 'done' || status === 'completed'
+}
+
+/**
+ * Poll until the backend reports done or failed — no client-side time limit.
+ */
+export async function pollJob<T = JobPollResponse['result']>(
   jobId: string,
-  onProgress?: (progress: string | undefined) => void,
+  onUpdate?: (job: JobPollResponse) => void,
+  options?: { intervalMs?: number },
 ): Promise<T> {
+  const intervalMs = options?.intervalMs ?? POLL_INTERVAL_MS
+
   if (env.useMockApi) {
     await delay(2000)
     return {} as T
   }
 
-  for (let i = 0; i < MAX_POLLS; i++) {
-    const job = await apiGet<JobResponse>(`/api/jobs/${jobId}`)
-    onProgress?.(job.progress)
+  while (true) {
+    const job = await apiGet<JobPollResponse>(`/api/jobs/${jobId}`)
+    onUpdate?.(job)
 
-    if (job.status === 'completed') {
+    if (isJobDone(job.status)) {
       return (job.result ?? {}) as T
     }
     if (job.status === 'failed') {
-      throw new Error(job.error || 'Job failed')
+      throw new Error(job.error ?? 'Job failed')
     }
-    await delay(POLL_INTERVAL_MS)
-  }
 
-  throw new Error('Timed out waiting for the job to complete.')
+    await delay(intervalMs)
+  }
+}
+
+export async function fetchJobStages(type: 'pitch' | 'campaign') {
+  return apiGet<{ type: string; stages: JobPollResponse['stages'] }>(
+    `/api/jobs/stages/${type}`,
+  )
 }

@@ -23,4 +23,7 @@ export type CampaignGenerationResult = {
     duration: string
     script: string
   }
+  bannerUrl?: string
+  audioUrl?: string
+  videoUrl?: string
 }

@@ -5,10 +5,11 @@ import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
 import { ErrorState } from '@/components/common/ErrorState'
 import { Input } from '@/components/common/Input'
-import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Select } from '@/components/common/Select'
 import { Textarea } from '@/components/common/Textarea'
 import { SectionHeader } from '@/components/common/SectionHeader'
+import { JobProgress } from '@/components/jobs/JobProgress'
+import { JobStepper } from '@/components/jobs/JobStepper'
 import { PageShell } from '@/components/layout/PageShell'
 import { env } from '@/config/env'
 import { useCampaignGeneration } from '@/hooks/useCampaignGeneration'
@@ -16,7 +17,7 @@ import { campaignFormSchema, type CampaignFormValues } from '@/lib/validators'
 import type { CampaignRequest } from '@/services/campaignService'
 
 export function CampaignPage() {
-  const { generate, result, isLoading, error, progress, downloadZip, campaignId } =
+  const { generate, result, isLoading, error, job, downloadZip, campaignId } =
     useCampaignGeneration()
 
   const {
@@ -92,9 +93,10 @@ export function CampaignPage() {
               {isLoading ? 'Generating...' : 'Generate Campaign'}
             </Button>
             {isLoading && (
-              <LoadingSpinner
-                label={progress || 'Creating your campaign package...'}
-              />
+              <div className="space-y-6 py-4">
+                <JobProgress job={job} />
+                <JobStepper job={job} />
+              </div>
             )}
           </form>
         ) : (
@@ -104,6 +106,28 @@ export function CampaignPage() {
                 <Download className="h-4 w-4" />
                 Download campaign ZIP
               </Button>
+            )}
+            {result.bannerUrl && (
+              <Card>
+                <h3 className="font-semibold text-slate-100">Banner</h3>
+                <img
+                  src={result.bannerUrl}
+                  alt="Campaign banner"
+                  className="mt-3 rounded-xl max-h-64 object-cover w-full"
+                />
+              </Card>
+            )}
+            {result.audioUrl && (
+              <Card>
+                <h3 className="font-semibold text-slate-100">Campaign audio</h3>
+                <audio controls className="mt-3 w-full" src={result.audioUrl} />
+              </Card>
+            )}
+            {result.videoUrl && (
+              <Card>
+                <h3 className="font-semibold text-slate-100">Promo video</h3>
+                <video controls className="mt-3 w-full rounded-xl" src={result.videoUrl} />
+              </Card>
             )}
             <Card>
               <h3 className="font-semibold text-slate-100">Taglines</h3>

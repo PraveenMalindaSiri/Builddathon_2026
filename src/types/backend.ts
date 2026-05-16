@@ -33,6 +33,8 @@ export type CampaignStartResponse = {
   jobId: string
   campaignId: string
   status: string
+  progress?: string
+  stages?: Array<{ key: string; label: string }>
 }
 
 export type CaptureResponse = {

@@ -4,12 +4,17 @@
 import { getPitchResult } from '@/services/sessionService'
 import {
   runCaptureAndAnalysis,
-  submitRefineAnswers,
+  submitRefineAnswer,
+  completePipelineAfterRefine,
   type PipelineProgressHandler,
 } from '@/services/pitchPipeline'
 import type { PitchGenerateRequest, PitchGenerationResult } from '@/types/pitch'
 
-export { runCaptureAndAnalysis, submitRefineAnswers }
+export {
+  runCaptureAndAnalysis,
+  submitRefineAnswer,
+  completePipelineAfterRefine,
+}
 export type { PipelineProgressHandler }
 
 export async function fetchPitchResult(sessionId: string): Promise<PitchGenerationResult> {

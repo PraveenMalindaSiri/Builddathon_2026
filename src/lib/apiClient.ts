@@ -3,10 +3,11 @@ import { STORAGE_KEYS } from '@/config/constants'
 import { env } from '@/config/env'
 import { ApiAuthError, type ApiErrorResponse } from '@/types/api'
 
+/** No client timeout — long AI steps can take several minutes; rely on backend errors. */
 const client = axios.create({
   baseURL: env.apiUrl,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 180_000,
+  timeout: 0,
 })
 
 export function getToken(): string | null {
@@ -30,9 +31,6 @@ function parseError(error: unknown): string {
     const axiosError = error as AxiosError<ApiErrorResponse>
     if (axiosError.response?.data?.message) {
       return axiosError.response.data.message
-    }
-    if (axiosError.code === 'ECONNABORTED') {
-      return 'The request timed out. Please try again.'
     }
     if (!axiosError.response) {
       return 'Could not connect to backend. Please check the API URL and that the server is running.'

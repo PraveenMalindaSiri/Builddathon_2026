@@ -4,26 +4,31 @@ import { buildTranscript } from '@/lib/buildTranscript'
 import { apiPost } from '@/lib/apiClient'
 import { pollJob } from '@/services/jobService'
 import { getPitchResult } from '@/services/sessionService'
+import { mergePitchJobResult } from '@/services/sessionMapper'
 import { delay, mockPitchResult } from '@/services/mockPitchResult'
+import type { CaptureResponse } from '@/types/backend'
 import type {
-  CaptureResponse,
-  PitchJobResponse,
-  RefineStartResponse,
-} from '@/types/backend'
+  JobPollResponse,
+  PitchJobResult,
+  RefineStepResponse,
+} from '@/types/launchpad'
 import type { PitchGenerateRequest, PitchGenerationResult } from '@/types/pitch'
 
-export type RefineQuestion = {
-  category?: string
-  question: string
-  whyItMatters?: string
-}
-
 export type PipelineProgressHandler = (stepIndex: number, message?: string) => void
+export type JobUpdateHandler = (job: JobPollResponse) => void
+
+const MOCK_REFINE_QUESTIONS = [
+  'Who is your first target customer?',
+  'How will you make money in the first year?',
+  'What stops a competitor from copying you?',
+  'How will your first 100 customers find you?',
+  'Why are you the right founder for this?',
+]
 
 export async function runCaptureAndAnalysis(
   form: PitchGenerateRequest,
   onProgress: PipelineProgressHandler,
-): Promise<{ sessionId: string; questions: RefineQuestion[] }> {
+): Promise<{ sessionId: string; refineStep: RefineStepResponse }> {
   if (env.useMockApi) {
     onProgress(0)
     await delay(800)
@@ -32,16 +37,16 @@ export async function runCaptureAndAnalysis(
     onProgress(2)
     await delay(800)
     onProgress(3)
-    await delay(500)
+    await delay(400)
     const sessionId = `mock_${Date.now()}`
     localStorage.setItem(STORAGE_KEYS.sessionId, sessionId)
     return {
       sessionId,
-      questions: mockPitchResult.clarifyingQuestions.map((q) => ({
-        category: q.category,
-        question: q.question,
-        whyItMatters: q.whyItMatters,
-      })),
+      refineStep: {
+        questionIndex: 0,
+        question: MOCK_REFINE_QUESTIONS[0],
+        done: false,
+      },
     }
   }
 
@@ -61,19 +66,43 @@ export async function runCaptureAndAnalysis(
   await apiPost('/api/audit', { sessionId })
 
   onProgress(3)
-  const refine = await apiPost<{ sessionId: string }, RefineStartResponse>(
+  const refine = await apiPost<{ sessionId: string }, RefineStepResponse>(
     '/api/refine/start',
     { sessionId },
   )
 
-  const questions = refine.questions ?? []
-  return { sessionId, questions }
+  return { sessionId, refineStep: refine }
 }
 
-export async function submitRefineAnswers(
+export async function submitRefineAnswer(
   sessionId: string,
-  answers: string[],
+  questionIndex: number,
+  answerTranscript: string,
+): Promise<RefineStepResponse> {
+  if (env.useMockApi) {
+    await delay(400)
+    const next = questionIndex + 1
+    if (next >= MOCK_REFINE_QUESTIONS.length) {
+      return { questionIndex: next, question: '', done: true }
+    }
+    return {
+      questionIndex: next,
+      question: MOCK_REFINE_QUESTIONS[next],
+      done: false,
+    }
+  }
+
+  return apiPost('/api/refine/answer', {
+    sessionId,
+    questionIndex,
+    answerTranscript,
+  })
+}
+
+export async function completePipelineAfterRefine(
+  sessionId: string,
   onProgress: PipelineProgressHandler,
+  onJobUpdate?: JobUpdateHandler,
 ): Promise<PitchGenerationResult> {
   if (env.useMockApi) {
     onProgress(4)
@@ -91,15 +120,6 @@ export async function submitRefineAnswers(
     return result
   }
 
-  const count = Math.min(answers.length, 5)
-  for (let i = 0; i < count; i++) {
-    await apiPost('/api/refine/answer', {
-      sessionId,
-      questionIndex: i,
-      answerTranscript: answers[i] || 'No answer provided.',
-    })
-  }
-
   onProgress(4)
   await apiPost('/api/refine/complete', { sessionId })
 
@@ -107,15 +127,45 @@ export async function submitRefineAnswers(
   await apiPost('/api/validate', { sessionId })
 
   onProgress(6)
-  const pitchJob = await apiPost<{ sessionId: string }, PitchJobResponse>('/api/pitch', {
-    sessionId,
+  const pitchStart = await apiPost<
+    { sessionId: string },
+    {
+      jobId: string
+      status: string
+      progress?: string
+      stages?: JobPollResponse['stages']
+    }
+  >('/api/pitch', { sessionId })
+
+  localStorage.setItem(STORAGE_KEYS.jobId, pitchStart.jobId)
+
+  const initialJob: JobPollResponse = {
+    jobId: pitchStart.jobId,
+    type: 'pitch',
+    status: 'processing',
+    progress: pitchStart.progress ?? 'queued',
+    progressLabel: 'Queued',
+    progressIndex: 0,
+    progressTotal: pitchStart.stages?.length ?? 7,
+    progressPercent: 0,
+    stages: pitchStart.stages ?? [],
+    result: null,
+    error: null,
+  }
+  onJobUpdate?.(initialJob)
+
+  const jobResult = await pollJob<PitchJobResult>(pitchStart.jobId, (job) => {
+    onJobUpdate?.(job)
+    onProgress(6, job.progressLabel)
   })
-  localStorage.setItem(STORAGE_KEYS.jobId, pitchJob.jobId)
 
-  onProgress(6, pitchJob.status)
-  await pollJob(pitchJob.jobId, (p) => onProgress(6, p))
+  let result = await getPitchResult(sessionId)
+  result = mergePitchJobResult(result, jobResult)
 
-  const result = await getPitchResult(sessionId)
+  if (jobResult.audioUrl) {
+    result.audioUrl = jobResult.audioUrl
+  }
+
   localStorage.setItem(STORAGE_KEYS.lastPitchResult, JSON.stringify(result))
   return result
 }

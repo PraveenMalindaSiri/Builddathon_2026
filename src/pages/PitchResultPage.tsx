@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Button } from '@/components/common/Button'
 import { EmptyState } from '@/components/common/EmptyState'
 import { ErrorState } from '@/components/common/ErrorState'
@@ -44,6 +45,11 @@ export function PitchResultPage() {
       try {
         const data = await getPitchResult(sessionId)
         setResult(data)
+        if (data.audioWarning && !data.audioUrl) {
+          toast.warning('Pitch ready — voice audio could not be generated.', {
+            description: data.audioWarning,
+          })
+        }
         localStorage.setItem(STORAGE_KEYS.lastPitchResult, JSON.stringify(data))
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load session')

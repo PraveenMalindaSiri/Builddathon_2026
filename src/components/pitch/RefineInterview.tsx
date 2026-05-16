@@ -3,83 +3,89 @@ import { Button } from '@/components/common/Button'
 import { Card } from '@/components/common/Card'
 import { Textarea } from '@/components/common/Textarea'
 import { VoiceInputButton } from '@/components/pitch/VoiceInputButton'
-import type { RefineQuestion } from '@/services/pitchPipeline'
+import { submitRefineAnswer } from '@/services/pitchPipeline'
+import type { RefineStepResponse } from '@/types/launchpad'
 
 type RefineInterviewProps = {
-  questions: RefineQuestion[]
-  onComplete: (answers: string[]) => void
+  sessionId: string
+  initialStep: RefineStepResponse
+  onComplete: () => void
   isSubmitting?: boolean
 }
 
-export function RefineInterview({ questions, onComplete, isSubmitting }: RefineInterviewProps) {
-  const list =
-    questions.length > 0
-      ? questions
-      : [{ question: 'Tell us more about your target customer.' }]
-  const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState<string[]>(() => list.map(() => ''))
-  const current = list[index]
+export function RefineInterview({
+  sessionId,
+  initialStep,
+  onComplete,
+  isSubmitting,
+}: RefineInterviewProps) {
+  const [step, setStep] = useState<RefineStepResponse>(initialStep)
+  const [answer, setAnswer] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [questionNum, setQuestionNum] = useState(1)
 
-  const setCurrentAnswer = (text: string) => {
-    setAnswers((prev) => {
-      const next = [...prev]
-      next[index] = text
-      return next
-    })
-  }
-
-  const handleNext = () => {
-    if (index < list.length - 1) {
-      setIndex((i) => i + 1)
-      return
+  const handleSubmit = async () => {
+    if (!answer.trim()) return
+    setLoading(true)
+    setError(null)
+    try {
+      const next = await submitRefineAnswer(sessionId, step.questionIndex, answer.trim())
+      setAnswer('')
+      if (next.done) {
+        onComplete()
+        return
+      }
+      setStep(next)
+      setQuestionNum((n) => n + 1)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit answer')
+    } finally {
+      setLoading(false)
     }
-    onComplete(answers.slice(0, 5))
   }
 
   return (
     <Card variant="elevated">
       <p className="text-xs font-medium uppercase tracking-wide text-blue-400">
-        Founder interview — question {index + 1} of {list.length}
+        Founder interview — question {questionNum}
       </p>
-      {current.category && (
-        <p className="mt-1 text-xs text-slate-500">{current.category}</p>
+      {step.category && <p className="mt-1 text-xs text-slate-500">{step.category}</p>}
+      <h3 className="mt-3 text-lg font-semibold text-slate-100">{step.question}</h3>
+      {step.whyItMatters && (
+        <p className="mt-2 text-sm text-slate-400">{step.whyItMatters}</p>
       )}
-      <h3 className="mt-3 text-lg font-semibold text-slate-100">{current.question}</h3>
-      {current.whyItMatters && (
-        <p className="mt-2 text-sm text-slate-400">{current.whyItMatters}</p>
+      {step.audioUrl && (
+        <audio className="mt-3 w-full" controls src={step.audioUrl}>
+          Question audio
+        </audio>
       )}
+      {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
       <div className="mt-4">
         <Textarea
           label="Your answer"
           rows={4}
-          value={answers[index] ?? ''}
-          onChange={(e) => setCurrentAnswer(e.target.value)}
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
           placeholder="Type or use voice to answer..."
+          disabled={loading || isSubmitting}
         />
         <div className="mt-2">
           <VoiceInputButton
             onTranscript={(t) => {
-              const cur = answers[index]?.trim() ?? ''
-              setCurrentAnswer(cur ? `${cur} ${t}` : t)
+              setAnswer((cur) => (cur.trim() ? `${cur.trim()} ${t}` : t))
             }}
           />
         </div>
       </div>
-      <div className="mt-6 flex justify-between gap-3">
+      <div className="mt-6">
         <Button
           type="button"
-          variant="ghost"
-          disabled={index === 0}
-          onClick={() => setIndex((i) => Math.max(0, i - 1))}
+          onClick={handleSubmit}
+          disabled={loading || isSubmitting || !answer.trim()}
+          className="w-full sm:w-auto"
         >
-          Back
-        </Button>
-        <Button
-          type="button"
-          onClick={handleNext}
-          disabled={isSubmitting || !(answers[index]?.trim().length ?? 0)}
-        >
-          {index < list.length - 1 ? 'Next question' : 'Finish interview'}
+          {loading ? 'Submitting…' : 'Submit answer'}
         </Button>
       </div>
     </Card>
